@@ -28,10 +28,12 @@ import com.example.android.wifidirect.HitCount.HitCountMap.IpInterface;
 import java.io.IOException;
 import java.lang.Integer;
 import java.lang.String;
+import java.util.ArrayDeque;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.PriorityQueue;
+import java.util.Queue;
 
 /**
  * Created by tj on 2/5/16.
@@ -72,13 +74,15 @@ public class GroupIndividual {
         timeoutBestIPMap = new HashMap<>();
         sequentialTimeoutTaskMap = new HashMap<>();
         timer = new Timer();
-        this.forwardingStrategy = ForwardingStrategy.HIT_THEN_FLOOD; // TODO switch to other strategies
+        this.forwardingStrategy = ForwardingStrategy.FLOOD; // TODO switch to other strategies
     }
 
     public boolean startServer(){
-        Toast.makeText(fragment.getView().getContext(), "starting server", Toast.LENGTH_SHORT).show();
-        socketServerThread = new SocketServerThread(this);
-        socketServerThread.start();
+        if(socketServerThread == null || !socketServerThread.isAlive()){
+            Toast.makeText(fragment.getView().getContext(), "starting server", Toast.LENGTH_SHORT).show();
+            socketServerThread = new SocketServerThread(this);
+            socketServerThread.start();
+        }
         return true;
     }
 
@@ -115,7 +119,9 @@ public class GroupIndividual {
         }
         else if(forwardingStrategy == ForwardingStrategy.SEQUENTIAL){
             // get a queue of interfaces to try
-            PriorityQueue<IpInterface> queue = hitCountMap.ipByCount(name, map.keySet());
+//            PriorityQueue<IpInterface> queue = hitCountMap.ipByCount(name, map.keySet());
+            Queue<IpInterface> queue = hitCountMap.ipByCount(name, map.keySet());
+
             Log.i(TAG, "creating sequential interest for queue" + queue.size());
             if(queue.size() == 0){
                 floodInterest(message, name, incoming);
@@ -127,7 +133,7 @@ public class GroupIndividual {
 
     }
 
-    public void sequentialInterest(SerialMessage message, String name, String incoming, PriorityQueue<IpInterface> queue){
+    public void sequentialInterest(SerialMessage message, String name, String incoming, Queue<IpInterface> queue){
         if(queue.size() > 0){
             String nextIP = queue.peek().getIpAddress();// get the queue
             pit.insertPitEntry(message, name, incoming, nextIP);
@@ -135,7 +141,7 @@ public class GroupIndividual {
         }
     }
 
-    private void sendSequentialInterest(SerialMessage message, String name, String incoming, PriorityQueue<IpInterface> queue){
+    private void sendSequentialInterest(SerialMessage message, String name, String incoming, Queue<IpInterface> queue){
         if(queue.size() > 0){
             String nextIP = queue.poll().getIpAddress();
             ConnectedThread ct = map.get(nextIP);
@@ -336,7 +342,7 @@ public class GroupIndividual {
     }
 
     public void addSequentialTaskTimeout(SerialMessage message, String name, String incoming,
-                                         String outgoing, PriorityQueue<IpInterface> queue){
+                                         String outgoing, Queue<IpInterface> queue){
         SequentialTimeoutTask timeout = new SequentialTimeoutTask(message, name, incoming, outgoing, queue);
         sequentialTimeoutTaskMap.put(outgoing, timeout);
         timeout.execute();
@@ -432,10 +438,10 @@ public class GroupIndividual {
         private SerialMessage message;
         private String incoming;
         private String outgoing;
-        private PriorityQueue<IpInterface> queue;
+        private Queue<IpInterface> queue;
 
         public SequentialTimeoutTask(SerialMessage message, String name,
-                                     String incoming, String outgoing, PriorityQueue<IpInterface> queue){
+                                     String incoming, String outgoing, Queue<IpInterface> queue){
             this.message = message;
             this.name = name;
             this.incoming = incoming;

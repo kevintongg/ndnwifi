@@ -8,11 +8,13 @@ import java.lang.Comparable;
 import java.lang.Integer;
 import java.lang.Override;
 import java.lang.String;
+import java.util.ArrayDeque;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.PriorityQueue;
+import java.util.Queue;
 import java.util.Set;
 
 public class HitCountMap{
@@ -35,8 +37,9 @@ private Map<String, HitCounter> interestMap;
         }
     }
 
+
     // returns a priority queue of IpInterfaces
-    public PriorityQueue<IpInterface> ipByCount(String interest, Set<String> ips) {
+    public Queue<IpInterface> ipByCount(String interest, Set<String> ips) {
         Log.d(TAG, "number of interfaces: " + ips.size());
         Map<String, Integer> count = new HashMap<>(ips.size());
         for(String ip : ips){
@@ -44,7 +47,8 @@ private Map<String, HitCounter> interestMap;
                 count.put(ip,0);
             }
         }
-        PriorityQueue<IpInterface> pq = new PriorityQueue<IpInterface>();
+//        PriorityQueue<IpInterface> pq = new PriorityQueue<IpInterface>();
+        Queue<IpInterface> pq = new ArrayDeque<>();
         if(interestMap.containsKey(interest)){
             HitCounter htc = interestMap.get(interest);
             Map<String, Integer> listOfMaps = htc.interfaceMap;
