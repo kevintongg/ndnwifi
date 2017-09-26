@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="?android:listPreferredItemHeight"
+    android:background="?android:attr/activatedBackgroundIndicator"
+    android:padding="@dimen/header_linear_layout_padding">
+
+    <ImageView
+        android:id="@+id/phone_icon"
+        android:layout_width="wrap_content"
+        android:layout_height="fill_parent"
+        android:layout_marginRight="@dimen/side_margin"
+        android:src="@drawable/ic_action_phone"
+        android:focusable="false"
+        android:clickable="false"/>
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="fill_parent"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/discovered_device_name_text_view"
+            android:layout_width="fill_parent"
+            android:layout_height="0dip"
+            android:layout_weight="1"
+            android:focusable="false"
+            android:clickable="false"/>
+
+        <TextView
+            android:id="@+id/discovered_device_status_text_view"
+            android:layout_width="fill_parent"
+            android:layout_height="0dip"
+            android:layout_weight="1"
+            android:focusable="false"
+            android:clickable="false"/>
+
+    </LinearLayout>
+
+</LinearLayout>

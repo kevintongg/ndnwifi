@@ -1,0 +1,103 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:tools="http://schemas.android.com/tools"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:orientation="vertical"
+              tools:context=".P2PCommunicationActivity">
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:orientation="vertical">
+
+        <ListView
+            android:id="@android:id/list"
+            android:layout_height="0dip"
+            android:layout_width="match_parent"
+            android:layout_weight="1"
+            android:clickable="true"
+            android:visibility="visible"/>
+
+        <RelativeLayout
+            android:id="@+id/no_devices_available_layout"
+            android:layout_width="fill_parent"
+            android:layout_height="?android:attr/listPreferredItemHeight"
+            android:layout_alignParentBottom="true"
+            android:background="@color/black_opacity_60"
+            android:visibility="gone">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="fill_parent"
+                    android:layout_alignParentLeft="true"
+                    android:paddingLeft="@dimen/activity_horizontal_margin"
+                    android:gravity="center"
+                    android:text="@string/no_devices_available"
+                    android:textColor="@color/white"
+                    android:textSize="@dimen/abc_text_size_large_material"/>
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/search_layout"
+            android:layout_width="fill_parent"
+            android:layout_height="?android:attr/listPreferredItemHeight"
+            android:layout_alignParentBottom="true"
+            android:paddingLeft="@dimen/activity_horizontal_margin"
+            android:gravity="center|left"
+            android:background="@color/black_opacity_60"
+            android:visibility="gone">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <ProgressBar
+                    android:id="@+id/search_layout_progress_bar"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    style="?android:attr/progressBarStyle"></ProgressBar>
+
+                <TextView
+                    android:id="@+id/search_layout_text_view"
+                    android:layout_width="wrap_content"
+                    android:layout_height="fill_parent"
+                    android:layout_alignParentLeft="true"
+                    android:gravity="center"
+                    android:text="@string/searching_dots"
+                    android:textColor="@color/white"
+                    android:textSize="@dimen/abc_text_size_large_material"/>
+
+            </LinearLayout>
+
+        </RelativeLayout>
+
+        <LinearLayout
+            style="?android:attr/buttonBarStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:background="@color/teal_800">
+
+            <no.bouvet.p2pcommunication.util.button.DiscoveryButton
+                android:id="@+id/left_bottom_button"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:textColor="@color/white"
+                style="?android:attr/buttonBarButtonStyle"/>
+
+            <no.bouvet.p2pcommunication.util.button.ConnectionButton
+                android:id="@+id/right_bottom_button"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:textColor="@color/white"
+                style="?android:attr/buttonBarButtonStyle"/>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</LinearLayout>

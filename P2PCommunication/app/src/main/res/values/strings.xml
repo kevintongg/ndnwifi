@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">P2P Communication</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="wifi_p2p_on_off">WiFi P2P On/Off</string>
+    <string name="wifi_p2p_enabled">WiFi P2P enabled</string>
+    <string name="wifi_p2p_disabled">WiFi P2P disabled</string>
+    <string name="wifi_p2p_disabled_please_enable">WiFi P2P is disabled, please enable from system settings</string>
+    <string name="wifi_p2p_unsupported">Device does not support WiFi P2P</string>
+    <string name="connect">Connect</string>
+    <string name="connected">Connected</string>
+    <string name="disconnect">Disconnect</string>
+    <string name="disconnected">Disconnected</string>
+    <string name="discover">Discover</string>
+    <string name="message_not_multicasted">Message not multicasted</string>
+    <string name="tap_to_connect">Tap to connect</string>
+    <string name="available">Available</string>
+    <string name="unavailable">Unavailable</string>
+    <string name="invited">Invited</string>
+    <string name="busy">Busy</string>
+    <string name="internal_error">Internal error</string>
+    <string name="unknown_error">Unknown error</string>
+    <string name="failed">Failed</string>
+    <string name="no_devices_available">No devices available</string>
+    <string name="unknown">Unknown</string>
+    <string name="multicast_chat_capital_letters">MULTICAST CHAT</string>
+    <string name="available_devices_capital_letters">AVAILABLE DEVICES</string>
+    <string name="me_capital_letters">ME</string>
+    <string name="searching_dots">Searching...</string>
+    <string name="send">Send</string>
+    <string name="am_i_host_question">Am I host?</string>
+    <string name="received">Received</string>
+    <string name="scan">Scan</string>
+    <string name="stop">Stop</string>
+    <string name="host">Host</string>
+    <string name="ip_capital_letters">IP</string>
+    <string name="create_group">Create group</string>
+    <string name="data_has_been_reset">Data has been reset</string>
+    <string name="peers_requested">Peers requested</string>
+    <string name="is_connected">Is connected</string>
+    <string name="is_disconnected">Is disconnected</string>
+    <string name="this_device_changed">This device changed</string>
+    <string name="successfully_sent_invitation_to_connect">Successfully sent invitation to connect</string>
+    <string name="could_not_send_invitation_to_connect">Could not send invitation to connect</string>
+    <string name="successfully_created_group">Successfully created group</string>
+    <string name="could_not_create_group">Could not create group</string>
+    <string name="successfully_disconnected">Successfully disconnected</string>
+    <string name="could_not_disconnect">Could not disconnect</string>
+    <string name="successfully_started_discovery">Successfully started discovery</string>
+    <string name="could_not_start_discovery">Could not start discovery</string>
+    <string name="successfully_stopped_discovery">Successfully stopped discovery</string>
+    <string name="could_not_stop_discovery">Could not stop discovery</string>
+    <string name="successfully_cancelled_connection">Successfully cancelled connection</string>
+    <string name="could_not_cancel_connection">Could not cancel connection</string>
+    <string name="cancel_invitation">Cancel invitation</string>
+    <string name="multicast_receiver_service_stopped">Multicast receiver service stopped</string>
+    <string name="multicast_receiver_service_started">Multicast receiver service started</string>
+    <string name="write_a_message">Write a message</string>
+    <string name="has_been_reset">Has been reset</string>
+
+</resources>
