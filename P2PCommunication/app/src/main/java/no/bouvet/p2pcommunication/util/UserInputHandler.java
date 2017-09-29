@@ -2,7 +2,7 @@ package no.bouvet.p2pcommunication.util;
 
 public interface UserInputHandler {
 
-    String getMessageToBeSentFromUserInput();
+  String getMessageToBeSentFromUserInput();
 
-    void clearUserInput();
+  void clearUserInput();
 }
