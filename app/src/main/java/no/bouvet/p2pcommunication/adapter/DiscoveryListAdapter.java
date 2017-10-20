@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 
 import no.bouvet.p2pcommunication.R;
+import no.bouvet.p2pcommunication.locationSocket.LocationReceiverService;
 
 public class DiscoveryListAdapter extends ArrayAdapter<WifiP2pDevice> {
 
@@ -28,7 +29,7 @@ public class DiscoveryListAdapter extends ArrayAdapter<WifiP2pDevice> {
         WifiP2pDevice myDevice = getItem(position);
 
         discoveryListAdapterViewHolder.deviceNameTextView.setText(myDevice.deviceName);
-        discoveryListAdapterViewHolder.deviceStatusTextView.setText(getDeviceStatus(myDevice.status));
+        discoveryListAdapterViewHolder.deviceStatusTextView.setText(getDeviceStatus(myDevice.status) + " | " + LocationReceiverService.othersLocation[0] + ", "  + LocationReceiverService.othersLocation[1]);
 
         return convertView;
     }
