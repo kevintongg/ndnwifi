@@ -71,6 +71,15 @@ public class Locations {
         return "CurrentLongitude: " + getCurrentLongitude() + " CurrentLatitude: " + getCurrentLatitude();
     }
 
+    public double[] getCurrentArray(){
+        double[] mLocation = new double[2];
+
+        mLocation[0] = getCurrentLongitude();
+        mLocation[1] = getCurrentLatitude();
+
+        return mLocation;
+    }
+
     public String getPrevious(){
         return "PreviousLongitude: " + getPreviousLongitude() + " PreviousLatitude: " + getPreviousLatitude();
     }

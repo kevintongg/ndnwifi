@@ -19,6 +19,7 @@ import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 
 import no.bouvet.p2pcommunication.P2PCommunicationActivity;
+import no.bouvet.p2pcommunication.locationSocket.Locations;
 import no.bouvet.p2pcommunication.util.NetworkUtil;
 
 
@@ -55,7 +56,12 @@ public class MulticastMessageReceiverService extends IntentService {
                     if(bb.length == 1024) {
                         othersLocation = byteToDouble(bb);
 
-                        Log.d(TAG, "Location in Bytes: " + othersLocation[1]);
+                        Locations data = new Locations(getSenderIpAddress(datagramPacket), othersLocation[0], othersLocation[1]);
+
+                        data.update(getSenderIpAddress(datagramPacket), othersLocation[0], othersLocation[1]);
+                        P2PCommunicationActivity.deviceLocations.put(getSenderIpAddress(datagramPacket), data);
+
+                        Log.d(TAG, "Location in Bytes: " + data.getCurrent());
                     }else {
                         sendReceivedDataToMulticastMessageReceivedHandler(getHandlerMessenger(intent), datagramPacket);
                     }

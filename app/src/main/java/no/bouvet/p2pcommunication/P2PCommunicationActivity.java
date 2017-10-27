@@ -57,7 +57,7 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
     private boolean wifiP2pEnabled;
     public static ArrayList<Double> locationGetter = new ArrayList<>();
     public static final HashMap<String, Locations> deviceLocations = new HashMap<>();
-    public String deviceAddress;
+    public static String deviceAddress;
 
     @InjectView(R.id.view_pager) ViewPager viewPager;
     @InjectView(R.id.my_device_name_text_view) TextView myDeviceNameTextView;
@@ -83,16 +83,8 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
         if (locationManager != null) {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
                 Log.d(TAG, "Working...");
-                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 30000, 0, locationListener);
+                locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 30000, 0, locationListener);
                deviceLocations.put(deviceAddress, new Locations(deviceAddress));
-
-                Timer t = new Timer();
-                t.schedule(new TimerTask(){
-                    public void run(){
-                        // write the method name here. which you want to call continuously
-                       new LocationAsyncTask().execute();
-                    }
-                },10, 1000);
 
             }
         }
@@ -279,6 +271,14 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
                 deviceLocations.put(deviceAddress, data);
 
                 String mTest = data.getCurrent();
+
+            Timer t = new Timer();
+            t.schedule(new TimerTask(){
+                public void run(){
+                    // write the method name here. which you want to call continuously
+                    new LocationAsyncTask().execute();
+                }
+            },10, 1000);
 //
 //                Toast.makeText(P2PCommunicationActivity.this, mTest,
 //                        Toast.LENGTH_LONG).show();

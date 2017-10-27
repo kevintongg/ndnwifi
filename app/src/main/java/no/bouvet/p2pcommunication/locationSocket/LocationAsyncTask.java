@@ -1,5 +1,6 @@
 package no.bouvet.p2pcommunication.locationSocket;
 
+import android.location.Location;
 import android.os.AsyncTask;
 import android.util.Log;
 
@@ -13,7 +14,11 @@ import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 
+import no.bouvet.p2pcommunication.P2PCommunicationActivity;
 import no.bouvet.p2pcommunication.util.NetworkUtil;
+
+import static no.bouvet.p2pcommunication.P2PCommunicationActivity.deviceLocations;
+import static no.bouvet.p2pcommunication.P2PCommunicationActivity.locationGetter;
 
 /**
  * Created by micha on 10/17/2017.
@@ -30,16 +35,20 @@ public class LocationAsyncTask extends AsyncTask<Void, String, Boolean> {
         boolean success = false;
         try {
             MulticastSocket multicastSocket = createMulticastSocket();
-            double[] locationTest = {900,500};
-            ByteBuffer bb = ByteBuffer.allocate(locationTest.length * 8);
-            for(double d: locationTest){
-                bb.putDouble(d);
-            }
+                double[] mLocationTest = new double[2];
+
+                mLocationTest[0] = P2PCommunicationActivity.locationGetter.get(0);
+                mLocationTest[1] = P2PCommunicationActivity.locationGetter.get(1);
+
+                ByteBuffer bb = ByteBuffer.allocate(mLocationTest.length * 8);
+                for (double d : mLocationTest) {
+                    bb.putDouble(d);
+                }
+                byte[] byteArray = bb.array();
+                DatagramPacket datagramPacket = new DatagramPacket(byteArray,byteArray.length, getMulticastGroupAddress(), getPort());
+                multicastSocket.send(datagramPacket);
             Log.d(TAG, "called");
 
-            byte[] byteArray = bb.array();
-            DatagramPacket datagramPacket = new DatagramPacket(byteArray,byteArray.length, getMulticastGroupAddress(), getPort());
-            multicastSocket.send(datagramPacket);
 
 
             success = true;
