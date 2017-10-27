@@ -21,7 +21,6 @@ import no.bouvet.p2pcommunication.util.NetworkUtil;
 
 public class LocationAsyncTask extends AsyncTask<Void, String, Boolean> {
 
-    public static double[] othersLocation = new double[4];
     byte[] buffer = new byte[1024];
 
     public static final String TAG = LocationAsyncTask.class.getSimpleName();

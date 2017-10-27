@@ -5,7 +5,6 @@ import android.Manifest;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.location.Location;
@@ -19,8 +18,6 @@ import android.net.wifi.p2p.WifiP2pManager;
 import android.net.wifi.p2p.WifiP2pManager.ConnectionInfoListener;
 import android.net.wifi.p2p.WifiP2pManager.PeerListListener;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Messenger;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
@@ -30,7 +27,7 @@ import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.widget.TextView;
 import android.widget.Toast;
-
+import java.util.HashMap;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
@@ -38,7 +35,6 @@ import java.util.TimerTask;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
-import butterknife.OnClick;
 import no.bouvet.p2pcommunication.adapter.P2pCommunicationFragmentPagerAdapter;
 import no.bouvet.p2pcommunication.broadcastreceiver.WifiP2pBroadcastReceiver;
 import no.bouvet.p2pcommunication.fragment.CommunicationFragment;
@@ -49,9 +45,7 @@ import no.bouvet.p2pcommunication.listener.multicast.MulticastListener;
 import no.bouvet.p2pcommunication.listener.onpagechange.ViewPagerOnPageChangeListener;
 import no.bouvet.p2pcommunication.listener.wifip2p.WifiP2pListener;
 import no.bouvet.p2pcommunication.locationSocket.LocationAsyncTask;
-import no.bouvet.p2pcommunication.locationSocket.LocationReceiverService;
-import no.bouvet.p2pcommunication.multicast.MulticastMessageReceivedHandler;
-import no.bouvet.p2pcommunication.multicast.MulticastMessageReceiverService;
+import no.bouvet.p2pcommunication.locationSocket.Locations;
 import no.bouvet.p2pcommunication.wifip2p.P2pCommunicationWifiP2pManager;
 
 public class P2PCommunicationActivity extends FragmentActivity implements WifiP2pListener, MulticastListener {
@@ -62,13 +56,14 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
     private P2pCommunicationFragmentPagerAdapter p2pCommunicationFragmentPagerAdapter;
     private boolean wifiP2pEnabled;
     public static ArrayList<Double> locationGetter = new ArrayList<>();
+    public static final HashMap<String, Locations> deviceLocations = new HashMap<>();
+    public String deviceAddress;
 
     @InjectView(R.id.view_pager) ViewPager viewPager;
     @InjectView(R.id.my_device_name_text_view) TextView myDeviceNameTextView;
     @InjectView(R.id.my_device_status_text_view) TextView myDeviceStatusTextView;
     @InjectView(R.id.personal_location) TextView personalLocation;
     LocationManager locationManager;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,28 +80,23 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 
 
-
-
         if (locationManager != null) {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
                 Log.d(TAG, "Working...");
                 locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 30000, 0, locationListener);
-                Timer timer = new Timer();
-                timer.schedule( new TimerTask() {
-                    public void run() {
-                        try{
-                            new LocationAsyncTask().execute();
-                        }
-                        catch (Exception e) {
-                            // TODO: handle exception
-                        }
+               deviceLocations.put(deviceAddress, new Locations(deviceAddress));
+
+                Timer t = new Timer();
+                t.schedule(new TimerTask(){
+                    public void run(){
+                        // write the method name here. which you want to call continuously
+                       new LocationAsyncTask().execute();
                     }
-                }, 0, 10000);
+                },10, 1000);
 
             }
         }
     }
-
 
     @Override
     public void onResume() {
@@ -123,7 +113,6 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
             }
         }
     }
-
 
     @Override
     public void onPause() {
@@ -169,6 +158,7 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
     public void onConnect(WifiP2pDevice wifiP2pDevice) {
         InvitationToConnectListener invitationToConnectListener = p2pCommunicationFragmentPagerAdapter.getDiscoveryAndConnectionFragment();
         p2pCommunicationWifiP2pManager.connect(wifiP2pDevice, invitationToConnectListener);
+        deviceLocations.put(wifiP2pDevice.deviceAddress, new Locations(deviceAddress));
     }
 
     @Override
@@ -201,6 +191,7 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
 
     @Override
     public void onThisDeviceChanged(WifiP2pDevice wifiP2pDevice) {
+        deviceAddress = wifiP2pDevice.deviceAddress;
         myDeviceNameTextView.setText(wifiP2pDevice.deviceName);
         myDeviceStatusTextView.setText(getDeviceStatus(wifiP2pDevice.status));
     }
@@ -268,7 +259,6 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
     }
 
 
-
     //Location listerner gets called when new location is being requested
     private final LocationListener locationListener = new LocationListener() {
         @Override
@@ -282,6 +272,16 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
             locationGetter.add(latitude);
             locationGetter.add(longitude);
 
+
+                Locations data = new Locations(deviceAddress, longitude, latitude);
+
+                data.update(deviceAddress, longitude, latitude);
+                deviceLocations.put(deviceAddress, data);
+
+                String mTest = data.getCurrent();
+//
+//                Toast.makeText(P2PCommunicationActivity.this, mTest,
+//                        Toast.LENGTH_LONG).show();
 
             personalLocation.setText("Your Cordinates : " + latitude + ",   " + longitude);
 
@@ -325,9 +325,9 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
                 // this thread waiting for the user's response! After the user
                 // sees the explanation, try again to request the permission.
                 new AlertDialog.Builder(this)
-                        .setTitle("Location")
-                        .setMessage("Turn Locaiton On")
-                        .setPositiveButton("Noice!", new DialogInterface.OnClickListener() {
+                        .setTitle("Hello World")
+                        .setMessage("Hello World")
+                        .setPositiveButton("Okkkkkkk", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialogInterface, int i) {
                                 //Prompt the user once explanation has been shown
@@ -351,7 +351,6 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
             return true;
         }
     }
-
 
     @Override
     public void onRequestPermissionsResult(int requestCode,

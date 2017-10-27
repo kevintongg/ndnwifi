@@ -42,7 +42,6 @@ public class DiscoveryAndConnectionFragment extends ListFragment implements Disc
     @InjectView(R.id.no_devices_available_layout) RelativeLayout noDevicesAvailableLayout;
     @InjectView(R.id.left_bottom_button) DiscoveryButton leftBottomButton;
     @InjectView(R.id.right_bottom_button) ConnectionButton rightBottomButton;
-    @InjectView(R.id.send_location_button) LocationButton midBottomButton;
 
     public static Fragment newInstance() {
         DiscoveryAndConnectionFragment discoveryAndConnectionFragment = new DiscoveryAndConnectionFragment();
