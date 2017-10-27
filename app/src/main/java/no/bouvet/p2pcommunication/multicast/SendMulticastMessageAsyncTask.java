@@ -39,7 +39,9 @@ public class SendMulticastMessageAsyncTask extends AsyncTask<Void, String, Boole
         boolean success = false;
         try {
             MulticastSocket multicastSocket = createMulticastSocket();
-            String messageToBeSent = userInputHandler.getMessageToBeSentFromUserInput() + "\n Latitude" + P2PCommunicationActivity.locationGetter.get(0) + ", Longitude" + P2PCommunicationActivity.locationGetter.get(1);
+          //  String messageToBeSent = userInputHandler.getMessageToBeSentFromUserInput() + "\n Latitude" + P2PCommunicationActivity.locationGetter.get(0) + ", Longitude" + P2PCommunicationActivity.locationGetter.get(1);
+            String messageToBeSent = userInputHandler.getMessageToBeSentFromUserInput() + "\n Latitude" + 500 + ", Longitude" + 500;
+
             DatagramPacket datagramPacket = new DatagramPacket(messageToBeSent.getBytes(), messageToBeSent.length(), getMulticastGroupAddress(), getPort());
             multicastSocket.send(datagramPacket);
             success = true;

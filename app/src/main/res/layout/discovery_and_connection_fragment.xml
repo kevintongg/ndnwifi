@@ -96,6 +96,14 @@
                 android:textColor="@color/white"
                 style="?android:attr/buttonBarButtonStyle"/>
 
+            <!--<no.bouvet.p2pcommunication.util.button.LocationButton-->
+                <!--android:id="@+id/send_location_button"-->
+                <!--android:layout_width="0dp"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:layout_weight="1"-->
+                <!--android:textColor="@color/white"-->
+                <!--style="?android:attr/buttonBarButtonStyle"/>-->
+
         </LinearLayout>
 
     </LinearLayout>

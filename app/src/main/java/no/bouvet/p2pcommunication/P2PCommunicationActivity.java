@@ -5,6 +5,7 @@ import android.Manifest;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.location.Location;
@@ -18,6 +19,8 @@ import android.net.wifi.p2p.WifiP2pManager;
 import android.net.wifi.p2p.WifiP2pManager.ConnectionInfoListener;
 import android.net.wifi.p2p.WifiP2pManager.PeerListListener;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Messenger;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
@@ -30,9 +33,12 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
+import butterknife.OnClick;
 import no.bouvet.p2pcommunication.adapter.P2pCommunicationFragmentPagerAdapter;
 import no.bouvet.p2pcommunication.broadcastreceiver.WifiP2pBroadcastReceiver;
 import no.bouvet.p2pcommunication.fragment.CommunicationFragment;
@@ -42,6 +48,10 @@ import no.bouvet.p2pcommunication.listener.invitation.InvitationToConnectListene
 import no.bouvet.p2pcommunication.listener.multicast.MulticastListener;
 import no.bouvet.p2pcommunication.listener.onpagechange.ViewPagerOnPageChangeListener;
 import no.bouvet.p2pcommunication.listener.wifip2p.WifiP2pListener;
+import no.bouvet.p2pcommunication.locationSocket.LocationAsyncTask;
+import no.bouvet.p2pcommunication.locationSocket.LocationReceiverService;
+import no.bouvet.p2pcommunication.multicast.MulticastMessageReceivedHandler;
+import no.bouvet.p2pcommunication.multicast.MulticastMessageReceiverService;
 import no.bouvet.p2pcommunication.wifip2p.P2pCommunicationWifiP2pManager;
 
 public class P2PCommunicationActivity extends FragmentActivity implements WifiP2pListener, MulticastListener {
@@ -59,6 +69,7 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
     @InjectView(R.id.personal_location) TextView personalLocation;
     LocationManager locationManager;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -74,14 +85,28 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 
 
+
+
         if (locationManager != null) {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
                 Log.d(TAG, "Working...");
                 locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 30000, 0, locationListener);
+                Timer timer = new Timer();
+                timer.schedule( new TimerTask() {
+                    public void run() {
+                        try{
+                            new LocationAsyncTask().execute();
+                        }
+                        catch (Exception e) {
+                            // TODO: handle exception
+                        }
+                    }
+                }, 0, 10000);
 
             }
         }
     }
+
 
     @Override
     public void onResume() {
@@ -98,6 +123,7 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
             }
         }
     }
+
 
     @Override
     public void onPause() {
@@ -299,9 +325,9 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
                 // this thread waiting for the user's response! After the user
                 // sees the explanation, try again to request the permission.
                 new AlertDialog.Builder(this)
-                        .setTitle("Hello World")
-                        .setMessage("Hello World")
-                        .setPositiveButton("Okkkkkkk", new DialogInterface.OnClickListener() {
+                        .setTitle("Location")
+                        .setMessage("Turn Locaiton On")
+                        .setPositiveButton("Noice!", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialogInterface, int i) {
                                 //Prompt the user once explanation has been shown
@@ -325,6 +351,7 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
             return true;
         }
     }
+
 
     @Override
     public void onRequestPermissionsResult(int requestCode,

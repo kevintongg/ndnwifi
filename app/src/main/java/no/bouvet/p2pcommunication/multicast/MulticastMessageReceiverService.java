@@ -16,8 +16,10 @@ import java.net.MulticastSocket;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.net.UnknownHostException;
+import java.nio.ByteBuffer;
 
 import no.bouvet.p2pcommunication.util.NetworkUtil;
+
 
 /*
     This java file creates a multicast socket and receives any incoming data packets.
@@ -29,6 +31,7 @@ public class MulticastMessageReceiverService extends IntentService {
     public static final String ACTION_LISTEN_FOR_MULTICAST = "ACTION_LISTEN_FOR_MULTICAST";
     public static final String EXTRA_HANDLER_MESSENGER = "EXTRA_HANDLER_MESSENGER";
     public static boolean isRunning = false;
+    public static double[] othersLocation = new double[4];
 
     public MulticastMessageReceiverService() {
         super(MulticastMessageReceiverService.class.getSimpleName());
@@ -44,7 +47,15 @@ public class MulticastMessageReceiverService extends IntentService {
                 while (isRunning) {
                     DatagramPacket datagramPacket = createDatagramPacket();
                     multicastSocket.receive(datagramPacket);
-                    sendReceivedDataToMulticastMessageReceivedHandler(getHandlerMessenger(intent), datagramPacket);
+
+                    byte[] bb = datagramPacket.getData();
+
+                    if(bb.length == 1024) {
+                        othersLocation = byteToDouble(bb);
+                        Log.d(TAG, "Location in Bytes: " + othersLocation[1]);
+                    }else {
+                        sendReceivedDataToMulticastMessageReceivedHandler(getHandlerMessenger(intent), datagramPacket);
+                    }
                 }
             } catch (IOException | RemoteException e) {
                 Log.e(TAG, e.toString());
@@ -106,5 +117,16 @@ public class MulticastMessageReceiverService extends IntentService {
     private DatagramPacket createDatagramPacket() {
         byte[] buffer = new byte[1024];
         return new DatagramPacket(buffer, buffer.length);
+    }
+
+    private double[] byteToDouble(byte[] bytearray){
+        ByteBuffer bb = ByteBuffer.wrap(bytearray);
+        int length = bytearray.length / 8;
+        double[] doubles = new double[length];
+        for(int i = 0; i < doubles.length; i++) {
+            doubles[i] = bb.getDouble();
+        }
+
+        return doubles;
     }
 }

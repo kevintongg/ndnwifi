@@ -25,8 +25,10 @@ import no.bouvet.p2pcommunication.listener.discovery.DiscoveryStateListener;
 import no.bouvet.p2pcommunication.listener.invitation.InvitationToConnectListener;
 import no.bouvet.p2pcommunication.listener.multicast.MulticastListener;
 import no.bouvet.p2pcommunication.listener.wifip2p.WifiP2pListener;
+import no.bouvet.p2pcommunication.locationSocket.LocationAsyncTask;
 import no.bouvet.p2pcommunication.util.button.ConnectionButton;
 import no.bouvet.p2pcommunication.util.button.DiscoveryButton;
+//import no.bouvet.p2pcommunication.util.button.LocationButton;
 
 public class DiscoveryAndConnectionFragment extends ListFragment implements DiscoveryStateListener, PeerListListener, InvitationToConnectListener, ConnectionInfoListener {
 
@@ -40,6 +42,7 @@ public class DiscoveryAndConnectionFragment extends ListFragment implements Disc
     @InjectView(R.id.no_devices_available_layout) RelativeLayout noDevicesAvailableLayout;
     @InjectView(R.id.left_bottom_button) DiscoveryButton leftBottomButton;
     @InjectView(R.id.right_bottom_button) ConnectionButton rightBottomButton;
+    @InjectView(R.id.send_location_button) LocationButton midBottomButton;
 
     public static Fragment newInstance() {
         DiscoveryAndConnectionFragment discoveryAndConnectionFragment = new DiscoveryAndConnectionFragment();
@@ -55,6 +58,7 @@ public class DiscoveryAndConnectionFragment extends ListFragment implements Disc
         return discoveryAndConnectionFragmentView;
     }
 
+
     @Override
     public void onDestroyView() {
         super.onDestroyView();
@@ -69,6 +73,7 @@ public class DiscoveryAndConnectionFragment extends ListFragment implements Disc
         multicastListener = (MulticastListener) getActivity();
         discoveryListAdapter = new DiscoveryListAdapter(getActivity(), R.layout.discovery_and_connection_fragment_list_row);
         setListAdapter(discoveryListAdapter);
+       // midBottomButton.initialize(wifiP2pListener);
         leftBottomButton.initialize(wifiP2pListener);
         rightBottomButton.initialize(wifiP2pListener);
     }

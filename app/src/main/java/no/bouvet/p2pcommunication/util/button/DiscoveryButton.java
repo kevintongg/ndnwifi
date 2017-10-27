@@ -1,6 +1,7 @@
 package no.bouvet.p2pcommunication.util.button;
 
 import android.content.Context;
+import android.content.Intent;
 import android.util.AttributeSet;
 import android.widget.Button;
 
@@ -9,9 +10,11 @@ import butterknife.OnClick;
 import no.bouvet.p2pcommunication.R;
 import no.bouvet.p2pcommunication.listener.wifip2p.WifiP2pListener;
 
+
 public class DiscoveryButton extends Button {
 
     private WifiP2pListener wifiP2pListener;
+
     private DiscoveryAndConnectionButtonState buttonState;
 
     public DiscoveryButton(Context context) {
@@ -45,6 +48,7 @@ public class DiscoveryButton extends Button {
             wifiP2pListener.onStopPeerDiscovery();
         }
     }
+
 
     public void setStateStartDiscovery() {
         setText(getContext().getString(R.string.discover));
