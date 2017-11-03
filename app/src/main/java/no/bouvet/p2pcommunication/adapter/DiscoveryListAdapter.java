@@ -29,8 +29,7 @@ public class DiscoveryListAdapter extends ArrayAdapter<WifiP2pDevice> {
         WifiP2pDevice myDevice = getItem(position);
 
         discoveryListAdapterViewHolder.deviceNameTextView.setText(myDevice.deviceName);
-        discoveryListAdapterViewHolder.deviceStatusTextView.setText(getDeviceStatus(myDevice.status) + " | " + LocationReceiverService.othersLocation[0] + ", "  + LocationReceiverService.othersLocation[1]);
-
+        discoveryListAdapterViewHolder.deviceStatusTextView.setText(getDeviceStatus(myDevice.status));
         return convertView;
     }
 

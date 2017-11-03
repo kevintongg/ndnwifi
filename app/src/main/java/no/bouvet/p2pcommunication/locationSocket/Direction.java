@@ -4,7 +4,8 @@ package no.bouvet.p2pcommunication.locationSocket;
  */
 
 public class Direction {
-    double getDistance(double firstLong, double firstLat, double secondLong, double secondLat){
+
+    public static double getDistance(double firstLong, double firstLat, double secondLong, double secondLat){
         double Radius =  6372.8;
         double lat1 = Math.toRadians(firstLat);
         double lat2 = Math.toRadians(secondLat);

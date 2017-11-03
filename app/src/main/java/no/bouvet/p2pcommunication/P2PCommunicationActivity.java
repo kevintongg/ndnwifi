@@ -278,7 +278,7 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
                     // write the method name here. which you want to call continuously
                     new LocationAsyncTask().execute();
                 }
-            },10, 1000);
+            }, 4000, 8000);
 //
 //                Toast.makeText(P2PCommunicationActivity.this, mTest,
 //                        Toast.LENGTH_LONG).show();

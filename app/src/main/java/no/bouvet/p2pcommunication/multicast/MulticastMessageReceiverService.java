@@ -19,8 +19,12 @@ import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 
 import no.bouvet.p2pcommunication.P2PCommunicationActivity;
+import no.bouvet.p2pcommunication.locationSocket.Direction;
 import no.bouvet.p2pcommunication.locationSocket.Locations;
 import no.bouvet.p2pcommunication.util.NetworkUtil;
+
+import static no.bouvet.p2pcommunication.P2PCommunicationActivity.deviceAddress;
+import static no.bouvet.p2pcommunication.P2PCommunicationActivity.deviceLocations;
 
 
 /*
@@ -55,17 +59,17 @@ public class MulticastMessageReceiverService extends IntentService {
 
                     if(bb.length == 1024) {
                         othersLocation = byteToDouble(bb);
-                        String test = getSenderIpAddress(datagramPacket);
 
-                        if(!(test.equals(NetworkUtil.getMyWifiP2pIpAddress())))
-                        {
                             Locations data = new Locations(getSenderIpAddress(datagramPacket), othersLocation[0], othersLocation[1]);
 
                             data.update(getSenderIpAddress(datagramPacket), othersLocation[0], othersLocation[1]);
-                            P2PCommunicationActivity.deviceLocations.put(getSenderIpAddress(datagramPacket), data);
+                            deviceLocations.put(getSenderIpAddress(datagramPacket), data);
 
-                            Log.d(TAG, "Location in Bytes: " + data.getCurrent());
-                        }
+                            double direction = Direction.getDistance(othersLocation[0], othersLocation[1],
+                                    deviceLocations.get(deviceAddress).getCurrentLatitude(),
+                                    deviceLocations.get(deviceAddress).getCurrentLongitude());
+
+                            Log.d(TAG, "Location: " + direction + " km" );
                     }else {
                         sendReceivedDataToMulticastMessageReceivedHandler(getHandlerMessenger(intent), datagramPacket);
                     }
