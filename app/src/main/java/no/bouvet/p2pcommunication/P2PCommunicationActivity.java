@@ -101,7 +101,7 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
                     == PackageManager.PERMISSION_GRANTED) {
 
                 //Request location updates:
-                locationManager.requestLocationUpdates(locationManager.GPS_PROVIDER, 30000, 0, locationListener);
+                locationManager.requestLocationUpdates(locationManager.NETWORK_PROVIDER, 30000, 0, locationListener);
             }
         }
     }
@@ -270,7 +270,7 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
                 data.update(deviceAddress, longitude, latitude);
                 deviceLocations.put(deviceAddress, data);
 
-                String mTest = data.getCurrent();
+//                String mTest = data.getCurrent();
 
             Timer t = new Timer();
             t.schedule(new TimerTask(){

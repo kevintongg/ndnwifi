@@ -55,13 +55,17 @@ public class MulticastMessageReceiverService extends IntentService {
 
                     if(bb.length == 1024) {
                         othersLocation = byteToDouble(bb);
+                        String test = getSenderIpAddress(datagramPacket);
 
-                        Locations data = new Locations(getSenderIpAddress(datagramPacket), othersLocation[0], othersLocation[1]);
+                        if(!(test.equals(NetworkUtil.getMyWifiP2pIpAddress())))
+                        {
+                            Locations data = new Locations(getSenderIpAddress(datagramPacket), othersLocation[0], othersLocation[1]);
 
-                        data.update(getSenderIpAddress(datagramPacket), othersLocation[0], othersLocation[1]);
-                        P2PCommunicationActivity.deviceLocations.put(getSenderIpAddress(datagramPacket), data);
+                            data.update(getSenderIpAddress(datagramPacket), othersLocation[0], othersLocation[1]);
+                            P2PCommunicationActivity.deviceLocations.put(getSenderIpAddress(datagramPacket), data);
 
-                        Log.d(TAG, "Location in Bytes: " + data.getCurrent());
+                            Log.d(TAG, "Location in Bytes: " + data.getCurrent());
+                        }
                     }else {
                         sendReceivedDataToMulticastMessageReceivedHandler(getHandlerMessenger(intent), datagramPacket);
                     }
@@ -138,4 +142,5 @@ public class MulticastMessageReceiverService extends IntentService {
 
         return doubles;
     }
+
 }
