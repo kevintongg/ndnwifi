@@ -56,8 +56,10 @@ public class MulticastMessageReceiverService extends IntentService {
                     multicastSocket.receive(datagramPacket);
 
                     byte[] bb = datagramPacket.getData();
+                    String test = getFirstLetter(datagramPacket);
 
-                    if(bb.length == 1024) {
+                    if(!(test.contains(":"))) {
+
                         othersLocation = byteToDouble(bb);
 
                             Locations data = new Locations(getSenderIpAddress(datagramPacket), othersLocation[0], othersLocation[1]);
@@ -112,6 +114,10 @@ public class MulticastMessageReceiverService extends IntentService {
         return new String(datagramPacket.getData(), 0, datagramPacket.getLength());
     }
 
+    private String getFirstLetter(DatagramPacket datagramPacket) {
+        return new String(datagramPacket.getData(), 0, 1);
+    }
+
     private MulticastSocket createMulticastSocket() throws IOException {
         MulticastSocket multicastSocket = new MulticastSocket(getPort());
         multicastSocket.setNetworkInterface(getNetworkInterface());
@@ -145,6 +151,14 @@ public class MulticastMessageReceiverService extends IntentService {
         }
 
         return doubles;
+    }
+
+    public static boolean containsOnlyNumbers(String str) {
+        for (int i = 0; i < str.length(); i++) {
+            if (!Character.isDigit(str.charAt(i)))
+                return true;
+        }
+        return false;
     }
 
 }
