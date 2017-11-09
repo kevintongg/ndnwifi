@@ -83,7 +83,7 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
         if (locationManager != null) {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
                 Log.d(TAG, "Working...");
-                locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 30000, 0, locationListener);
+                locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 30000, 2, locationListener);
                deviceLocations.put(deviceAddress, new Locations(deviceAddress));
 
             }
@@ -101,7 +101,7 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
                     == PackageManager.PERMISSION_GRANTED) {
 
                 //Request location updates:
-                locationManager.requestLocationUpdates(locationManager.NETWORK_PROVIDER, 30000, 0, locationListener);
+                locationManager.requestLocationUpdates(locationManager.NETWORK_PROVIDER, 30000, 2, locationListener);
             }
         }
     }
@@ -191,7 +191,7 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
     @Override
     public void onGroupHostInfoChanged(WifiP2pInfo wifiP2pInfo) {
         if (wifiP2pInfo != null && wifiP2pInfo.groupFormed && wifiP2pInfo.isGroupOwner) {
-            personalLocation.setText(getString(R.string.ip_capital_letters) + ": " + wifiP2pInfo.groupOwnerAddress.getHostAddress());
+           // personalLocation.setText(getString(R.string.ip_capital_letters) + ": " + wifiP2pInfo.groupOwnerAddress.getHostAddress());
         } else if (wifiP2pInfo != null && wifiP2pInfo.groupFormed) {
             personalLocation.setText("");
         } else {
@@ -265,12 +265,10 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
             locationGetter.add(longitude);
 
 
-                Locations data = new Locations(deviceAddress, longitude, latitude);
+            Locations data = new Locations(deviceAddress, longitude, latitude);
 
-                data.update(deviceAddress, longitude, latitude);
-                deviceLocations.put(deviceAddress, data);
-
-//                String mTest = data.getCurrent();
+            data.update(deviceAddress, longitude, latitude);
+            deviceLocations.put(deviceAddress, data);
 
             Timer t = new Timer();
             t.schedule(new TimerTask(){
@@ -278,10 +276,7 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
                     // write the method name here. which you want to call continuously
                     new LocationAsyncTask().execute();
                 }
-            }, 4000, 8000);
-//
-//                Toast.makeText(P2PCommunicationActivity.this, mTest,
-//                        Toast.LENGTH_LONG).show();
+            }, 40000, 8000);
 
             personalLocation.setText("Your Cordinates : " + latitude + ",   " + longitude);
 
@@ -325,9 +320,9 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
                 // this thread waiting for the user's response! After the user
                 // sees the explanation, try again to request the permission.
                 new AlertDialog.Builder(this)
-                        .setTitle("Hello World")
-                        .setMessage("Hello World")
-                        .setPositiveButton("Okkkkkkk", new DialogInterface.OnClickListener() {
+                        .setTitle("")
+                        .setMessage("")
+                        .setPositiveButton("", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialogInterface, int i) {
                                 //Prompt the user once explanation has been shown

@@ -20,6 +20,11 @@ import no.bouvet.p2pcommunication.util.NetworkUtil;
  * Created by micha on 10/17/2017.
  */
 
+
+/**
+ * TESTING PURPOSES:
+ * Not needed.
+ */
 public class LocationReceiverService  extends IntentService{
 
     public static final String TAG = LocationReceiverService.class.getSimpleName();

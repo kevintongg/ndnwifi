@@ -58,6 +58,9 @@ public class MulticastMessageReceiverService extends IntentService {
                     byte[] bb = datagramPacket.getData();
                     String test = getFirstLetter(datagramPacket);
 
+
+                    //In order to determine what type of data packet was sent every chat message starts with ':', this condition checks for this and determines whether the packet is
+                    //being sent for location or chat.
                     if(!(test.contains(":"))) {
 
                         othersLocation = byteToDouble(bb);
@@ -111,7 +114,7 @@ public class MulticastMessageReceiverService extends IntentService {
     }
 
     private String getReceivedText(DatagramPacket datagramPacket) {
-        return new String(datagramPacket.getData(), 0, datagramPacket.getLength());
+        return new String(datagramPacket.getData(), 1, datagramPacket.getLength());
     }
 
     private String getFirstLetter(DatagramPacket datagramPacket) {
@@ -142,6 +145,7 @@ public class MulticastMessageReceiverService extends IntentService {
         return new DatagramPacket(buffer, buffer.length);
     }
 
+    //Changes the byte to a double array if datapacket is being used for Location updates.
     private double[] byteToDouble(byte[] bytearray){
         ByteBuffer bb = ByteBuffer.wrap(bytearray);
         int length = bytearray.length / 8;
@@ -151,14 +155,6 @@ public class MulticastMessageReceiverService extends IntentService {
         }
 
         return doubles;
-    }
-
-    public static boolean containsOnlyNumbers(String str) {
-        for (int i = 0; i < str.length(); i++) {
-            if (!Character.isDigit(str.charAt(i)))
-                return true;
-        }
-        return false;
     }
 
 }

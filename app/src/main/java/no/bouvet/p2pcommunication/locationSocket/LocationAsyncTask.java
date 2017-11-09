@@ -24,6 +24,8 @@ import static no.bouvet.p2pcommunication.P2PCommunicationActivity.locationGetter
  * Created by micha on 10/17/2017.
  */
 
+
+//This AsyncTask creates a data packet for the location to be send to everyone in the wifi-direct group.
 public class LocationAsyncTask extends AsyncTask<Void, String, Boolean> {
 
     byte[] buffer = new byte[1024];

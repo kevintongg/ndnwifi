@@ -5,6 +5,8 @@ package no.bouvet.p2pcommunication.locationSocket;
 
 public class Direction {
 
+
+    //This method takes in two sets of coordinates and determines the distance in km.
     public static double getDistance(double firstLong, double firstLat, double secondLong, double secondLat){
         double Radius =  6372.8;
         double lat1 = Math.toRadians(firstLat);
