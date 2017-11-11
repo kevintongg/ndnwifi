@@ -7,6 +7,11 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorListener;
+import android.hardware.SensorManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -58,6 +63,10 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
     public static ArrayList<Double> locationGetter = new ArrayList<>();
     public static final HashMap<String, Locations> deviceLocations = new HashMap<>();
     public static String deviceAddress;
+    private CompassLocation compass;
+    private Context context;
+    Locations data;
+
 
     @InjectView(R.id.view_pager) ViewPager viewPager;
     @InjectView(R.id.my_device_name_text_view) TextView myDeviceNameTextView;
@@ -78,13 +87,25 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
         setViewPager(viewPager, p2pCommunicationFragmentPagerAdapter);
 
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        compass = new CompassLocation(this);
+
+//        Timer compassTimer = new Timer();
+//        compassTimer.schedule(new TimerTask(){
+//            public void run(){
+//                // write the method name here. which you want to call continuously
+//                compass = new CompassLocation(context);
+//            }
+//        }, 40000, 8000);
 
 
-        if (locationManager != null) {
+
+        if (locationManager != null && deviceAddress != null) {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
                 Log.d(TAG, "Working...");
-                locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 30000, 2, locationListener);
+                locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 30, 0, locationListener);
                deviceLocations.put(deviceAddress, new Locations(deviceAddress));
+
+
 
             }
         }
@@ -94,14 +115,14 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
     public void onResume() {
         super.onResume();
         registerReceiver(wifiP2pBroadcastReceiver, createWifiP2pIntentFilter());
-
+        compass.onStart();
         if (checkLocationPermission()) {
             if (ContextCompat.checkSelfPermission(this,
                     Manifest.permission. ACCESS_FINE_LOCATION)
                     == PackageManager.PERMISSION_GRANTED) {
 
                 //Request location updates:
-                locationManager.requestLocationUpdates(locationManager.NETWORK_PROVIDER, 30000, 2, locationListener);
+                locationManager.requestLocationUpdates(locationManager.NETWORK_PROVIDER, 40, 0, locationListener);
             }
         }
     }
@@ -110,6 +131,7 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
     public void onPause() {
         super.onPause();
         unregisterReceiver(wifiP2pBroadcastReceiver);
+
     }
 
     @Override
@@ -184,6 +206,7 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
     @Override
     public void onThisDeviceChanged(WifiP2pDevice wifiP2pDevice) {
         deviceAddress = wifiP2pDevice.deviceAddress;
+        data = new Locations(deviceAddress, 0, 0);
         myDeviceNameTextView.setText(wifiP2pDevice.deviceName);
         myDeviceStatusTextView.setText(getDeviceStatus(wifiP2pDevice.status));
     }
@@ -193,9 +216,9 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
         if (wifiP2pInfo != null && wifiP2pInfo.groupFormed && wifiP2pInfo.isGroupOwner) {
            // personalLocation.setText(getString(R.string.ip_capital_letters) + ": " + wifiP2pInfo.groupOwnerAddress.getHostAddress());
         } else if (wifiP2pInfo != null && wifiP2pInfo.groupFormed) {
-            personalLocation.setText("");
+           // personalLocation.setText("");
         } else {
-            personalLocation.setText("");
+            //personalLocation.setText("");
         }
     }
 
@@ -251,6 +274,7 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
     }
 
 
+
     //Location listerner gets called when new location is being requested
     private final LocationListener locationListener = new LocationListener() {
         @Override
@@ -265,10 +289,10 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
             locationGetter.add(longitude);
 
 
-            Locations data = new Locations(deviceAddress, longitude, latitude);
 
             data.update(deviceAddress, longitude, latitude);
             deviceLocations.put(deviceAddress, data);
+            Log.d("Prev Locations", "" + deviceLocations.get(deviceAddress).getLocations());
 
             Timer t = new Timer();
             t.schedule(new TimerTask(){
@@ -279,8 +303,6 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
             }, 40000, 8000);
 
             personalLocation.setText("Your Cordinates : " + latitude + ",   " + longitude);
-
-
 
             Log.d("Geo_Location", "Latitude: " + latitude + ", Longitude: " + longitude);
         }

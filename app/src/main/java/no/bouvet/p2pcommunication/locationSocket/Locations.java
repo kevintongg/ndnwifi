@@ -2,6 +2,7 @@ package no.bouvet.p2pcommunication.locationSocket;
 
 import android.location.Location;
 import android.net.wifi.p2p.WifiP2pDevice;
+import android.util.Log;
 
 /**
  * Created by sabamahbub on 10/20/17.
@@ -10,6 +11,7 @@ import android.net.wifi.p2p.WifiP2pDevice;
 public class Locations {
     String deviceAdress;
     double[] locations = new double[6];
+    double angle =0;
 
     public Locations(String device, double longitude, double latitude){
         this.deviceAdress = device;
@@ -29,6 +31,7 @@ public class Locations {
             this.locations[2] = this.locations[0];
             this.locations[1] = latitude;
             this.locations[0] = longitude;
+            updateAngle();
         }
     }
 
@@ -40,6 +43,13 @@ public class Locations {
             this.locations[2] = this.locations[0];
             this.locations[1] = location[1];
             this.locations[0] = location[0];
+        }
+    }
+
+    public void updateAngle(){
+        if(locations[2] != 0){
+            angle = Direction.getBearings(this.locations[2], this.locations[3], this.locations[0], this.locations[1]);
+            Log.d("Angle: ", "" + angle);
         }
     }
 

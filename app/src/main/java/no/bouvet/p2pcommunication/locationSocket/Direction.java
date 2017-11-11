@@ -22,4 +22,11 @@ public class Direction {
 
         return Radius * c;
     }
+
+    public static double getBearings(double prevLong, double prevLat, double curLong, double curLat){
+        double y = Math.sin(curLong-prevLong) * Math.cos(curLong);
+        double x = Math.cos(prevLat) * Math.sin(curLat) - Math.sin(prevLat) * Math.cos(curLat)*Math.cos(curLong-prevLong);
+        double angle = Math.toDegrees( Math.atan2(y, x)) ;
+        return angle;
+    }
 }
