@@ -59,6 +59,9 @@
     <string name="multicast_receiver_service_started">Multicast receiver service started</string>
     <string name="write_a_message">Write a message</string>
     <string name="has_been_reset">Has been reset</string>
+    <string name="btn_send">Send</string>
+    <string name="txt_hint">Hint</string>
+
 
     /////////////////
     /////////////////
