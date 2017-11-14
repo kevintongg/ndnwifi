@@ -31,13 +31,19 @@
             android:visibility="visible" >
         </EditText>
 
-        <Button
-            android:id="@+id/button1"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom|end"
-            android:layout_weight="0.10"
-            android:text="@string/btn_send" />
+      <Button
+        android:id="@+id/upload_button"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="0.90"
+        android:text="@string/btn_upload"/>
+      <Button
+        android:id="@+id/button1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="0.10"
+        android:layout_gravity="bottom|end"
+        android:text="@string/btn_send"/>
     </LinearLayout>
 
 </FrameLayout>
