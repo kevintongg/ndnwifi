@@ -1,4 +1,7 @@
 package no.bouvet.p2pcommunication.locationSocket;
+
+import android.util.Log;
+
 /**
  * Created by sabamahbub on 11/3/17.
  */
@@ -28,5 +31,44 @@ public class Direction {
         double x = Math.cos(prevLat) * Math.sin(curLat) - Math.sin(prevLat) * Math.cos(curLat)*Math.cos(curLong-prevLong);
         double angle = Math.toDegrees( Math.atan2(y, x)) ;
         return angle;
+    }
+
+    public static String getBearingsString(double angle){
+        String heading = "";
+        if (angle >= 338 || angle < 23){
+            //GOING NORTH
+            heading = "N";
+        }
+        else if (angle >= 23 && angle < 68){
+            //GOING NORTH EAST
+            heading = "NE";
+        }
+        else if (angle >= 68 && angle < 113){
+            //GOING EAST
+            heading = "E";
+        }
+        else if (angle >= 113 && angle < 158){
+            //GOING SOUTH EAST
+            heading = "SE";
+        }
+        else if (angle >= 158 && angle < 203){
+            //GOING SOUTH
+            heading = "S";
+        }
+        else if (angle >= 203 && angle < 248){
+            //GOING SOUTH WEST
+            heading = "SW";
+        }
+        else if (angle >= 248 && angle < 293){
+            //GOING WEST
+            heading = "W";
+        }
+        else if (angle >= 293 && angle < 338){
+            //GOING NORTH WEST
+            heading = "NW";
+        }
+
+        Log.d("Heading", heading);
+        return heading;
     }
 }

@@ -7,11 +7,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
-import android.hardware.Sensor;
-import android.hardware.SensorEvent;
-import android.hardware.SensorEventListener;
-import android.hardware.SensorListener;
-import android.hardware.SensorManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -39,7 +34,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import butterknife.ButterKnife;
-import butterknife.InjectView;
+import butterknife.BindView;
 import no.bouvet.p2pcommunication.adapter.P2pCommunicationFragmentPagerAdapter;
 import no.bouvet.p2pcommunication.broadcastreceiver.WifiP2pBroadcastReceiver;
 import no.bouvet.p2pcommunication.fragment.CommunicationFragment;
@@ -49,6 +44,7 @@ import no.bouvet.p2pcommunication.listener.invitation.InvitationToConnectListene
 import no.bouvet.p2pcommunication.listener.multicast.MulticastListener;
 import no.bouvet.p2pcommunication.listener.onpagechange.ViewPagerOnPageChangeListener;
 import no.bouvet.p2pcommunication.listener.wifip2p.WifiP2pListener;
+import no.bouvet.p2pcommunication.locationSocket.Direction;
 import no.bouvet.p2pcommunication.locationSocket.LocationAsyncTask;
 import no.bouvet.p2pcommunication.locationSocket.Locations;
 import no.bouvet.p2pcommunication.wifip2p.P2pCommunicationWifiP2pManager;
@@ -68,10 +64,10 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
     Locations data;
 
 
-    @InjectView(R.id.view_pager) ViewPager viewPager;
-    @InjectView(R.id.my_device_name_text_view) TextView myDeviceNameTextView;
-    @InjectView(R.id.my_device_status_text_view) TextView myDeviceStatusTextView;
-    @InjectView(R.id.personal_location) TextView personalLocation;
+    @BindView(R.id.view_pager) ViewPager viewPager;
+    @BindView(R.id.my_device_name_text_view) TextView myDeviceNameTextView;
+    @BindView(R.id.my_device_status_text_view) TextView myDeviceStatusTextView;
+    @BindView(R.id.personal_location) TextView personalLocation;
     LocationManager locationManager;
 
     @Override
@@ -79,7 +75,7 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
 
-        ButterKnife.inject(this);
+        ButterKnife.bind(this);
         createAndAcquireMulticastLock();
         p2pCommunicationWifiP2pManager = new P2pCommunicationWifiP2pManager(getApplicationContext());
         wifiP2pBroadcastReceiver = new WifiP2pBroadcastReceiver(getApplicationContext(), this);
@@ -292,7 +288,8 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
 
             data.update(deviceAddress, longitude, latitude);
             deviceLocations.put(deviceAddress, data);
-            Log.d("Prev Locations", "" + deviceLocations.get(deviceAddress).getLocations());
+            //Log.d("Prev Locations", "" + deviceLocations.get(deviceAddress).getLocations());
+
 
             Timer t = new Timer();
             t.schedule(new TimerTask(){
@@ -302,7 +299,7 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
                 }
             }, 40000, 8000);
 
-            personalLocation.setText("Your Cordinates : " + latitude + ",   " + longitude);
+            updateUserStatus(latitude, longitude);
 
             Log.d("Geo_Location", "Latitude: " + latitude + ", Longitude: " + longitude);
         }
@@ -367,6 +364,15 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
         } else {
             return true;
         }
+    }
+
+    private void updateUserStatus(double latitude, double longitude){
+
+        double angle = Direction.getBearings(deviceLocations.get(deviceAddress).getPreviousLongitude(), deviceLocations.get(deviceAddress).getPreviousLatitude(), deviceLocations.get(deviceAddress).getCurrentLongitude(), deviceLocations.get(deviceAddress).getCurrentLatitude());
+        String heading = Direction.getBearingsString(angle);
+
+        personalLocation.setText("Your Cordinates : " + latitude + ",   " + longitude + "\nGoing: " + heading );
+
     }
 
     @Override

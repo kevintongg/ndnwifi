@@ -2,8 +2,6 @@ package no.bouvet.p2pcommunication.util;
 
 import android.util.Log;
 
-//import org.apache.http.conn.util.InetAddressUtils;
-
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;

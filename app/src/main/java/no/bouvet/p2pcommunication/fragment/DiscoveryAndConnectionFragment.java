@@ -17,7 +17,8 @@ import android.widget.ListView;
 import android.widget.RelativeLayout;
 
 import butterknife.ButterKnife;
-import butterknife.InjectView;
+import butterknife.BindView;
+import butterknife.Unbinder;
 import no.bouvet.p2pcommunication.R;
 import no.bouvet.p2pcommunication.adapter.DiscoveryListAdapter;
 import no.bouvet.p2pcommunication.adapter.P2pCommunicationFragmentPagerAdapter;
@@ -25,10 +26,8 @@ import no.bouvet.p2pcommunication.listener.discovery.DiscoveryStateListener;
 import no.bouvet.p2pcommunication.listener.invitation.InvitationToConnectListener;
 import no.bouvet.p2pcommunication.listener.multicast.MulticastListener;
 import no.bouvet.p2pcommunication.listener.wifip2p.WifiP2pListener;
-import no.bouvet.p2pcommunication.locationSocket.LocationAsyncTask;
 import no.bouvet.p2pcommunication.util.button.ConnectionButton;
 import no.bouvet.p2pcommunication.util.button.DiscoveryButton;
-//import no.bouvet.p2pcommunication.util.button.LocationButton;
 
 public class DiscoveryAndConnectionFragment extends ListFragment implements DiscoveryStateListener, PeerListListener, InvitationToConnectListener, ConnectionInfoListener {
 
@@ -36,12 +35,13 @@ public class DiscoveryAndConnectionFragment extends ListFragment implements Disc
     private boolean viewsInjected;
     private DiscoveryListAdapter discoveryListAdapter;
     private WifiP2pListener wifiP2pListener;
+    Unbinder unbinder;
     private MulticastListener multicastListener;
 
-    @InjectView(R.id.search_layout) RelativeLayout searchLayout;
-    @InjectView(R.id.no_devices_available_layout) RelativeLayout noDevicesAvailableLayout;
-    @InjectView(R.id.left_bottom_button) DiscoveryButton leftBottomButton;
-    @InjectView(R.id.right_bottom_button) ConnectionButton rightBottomButton;
+    @BindView(R.id.search_layout) RelativeLayout searchLayout;
+    @BindView(R.id.no_devices_available_layout) RelativeLayout noDevicesAvailableLayout;
+    @BindView(R.id.left_bottom_button) DiscoveryButton leftBottomButton;
+    @BindView(R.id.right_bottom_button) ConnectionButton rightBottomButton;
 
     public static Fragment newInstance() {
         DiscoveryAndConnectionFragment discoveryAndConnectionFragment = new DiscoveryAndConnectionFragment();
@@ -52,7 +52,7 @@ public class DiscoveryAndConnectionFragment extends ListFragment implements Disc
     @Override
     public View onCreateView(LayoutInflater layoutInflater, ViewGroup container, Bundle savedInstanceState) {
         View discoveryAndConnectionFragmentView = layoutInflater.inflate(R.layout.discovery_and_connection_fragment, container, false);
-        ButterKnife.inject(this, discoveryAndConnectionFragmentView);
+        unbinder =  ButterKnife.bind(this, discoveryAndConnectionFragmentView);
         viewsInjected = true;
         return discoveryAndConnectionFragmentView;
     }
@@ -61,7 +61,7 @@ public class DiscoveryAndConnectionFragment extends ListFragment implements Disc
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        ButterKnife.reset(this);
+        unbinder.unbind();
     }
 
     @Override

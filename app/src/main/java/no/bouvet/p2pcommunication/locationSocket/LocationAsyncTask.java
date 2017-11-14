@@ -1,6 +1,5 @@
 package no.bouvet.p2pcommunication.locationSocket;
 
-import android.location.Location;
 import android.os.AsyncTask;
 import android.util.Log;
 
@@ -16,9 +15,6 @@ import java.nio.ByteBuffer;
 
 import no.bouvet.p2pcommunication.P2PCommunicationActivity;
 import no.bouvet.p2pcommunication.util.NetworkUtil;
-
-import static no.bouvet.p2pcommunication.P2PCommunicationActivity.deviceLocations;
-import static no.bouvet.p2pcommunication.P2PCommunicationActivity.locationGetter;
 
 /**
  * Created by micha on 10/17/2017.
@@ -55,7 +51,7 @@ public class LocationAsyncTask extends AsyncTask<Void, String, Boolean> {
 
             success = true;
         } catch (IOException ioException) {
-            Log.e(TAG, ioException.toString());
+           // Log.e(TAG, ioException.toString());
         }
         return success;
     }

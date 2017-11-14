@@ -8,7 +8,6 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 
 import no.bouvet.p2pcommunication.R;
-import no.bouvet.p2pcommunication.locationSocket.LocationReceiverService;
 
 public class DiscoveryListAdapter extends ArrayAdapter<WifiP2pDevice> {
 

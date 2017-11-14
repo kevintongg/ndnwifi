@@ -37,7 +37,7 @@ public class DiscoveryButton extends Button {
     @Override
     protected void onFinishInflate() {
         super.onFinishInflate();
-        ButterKnife.inject(this);
+        ButterKnife.bind(this);
     }
 
     @OnClick

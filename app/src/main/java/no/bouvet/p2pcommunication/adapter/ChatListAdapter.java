@@ -14,7 +14,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
-import butterknife.InjectView;
+import butterknife.BindView;
 import no.bouvet.p2pcommunication.R;
 import no.bouvet.p2pcommunication.multicast.MulticastMessage;
 
@@ -24,7 +24,7 @@ public class ChatListAdapter extends ArrayAdapter<MulticastMessage> {
     private int layoutResourceId;
     LocationManager locationManager;
     private double longitude, latitude;
-    @InjectView(R.id.location_text_view)
+    @BindView(R.id.location_text_view)
     TextView location_text_view;
 
 

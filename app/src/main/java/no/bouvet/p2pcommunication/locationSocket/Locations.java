@@ -1,7 +1,6 @@
 package no.bouvet.p2pcommunication.locationSocket;
 
-import android.location.Location;
-import android.net.wifi.p2p.WifiP2pDevice;
+
 import android.util.Log;
 
 /**
