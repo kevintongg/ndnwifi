@@ -11,6 +11,7 @@ public class Locations {
     String deviceAdress;
     double[] locations = new double[6];
     double angle =0;
+    String heading = "";
 
     public Locations(String device, double longitude, double latitude){
         this.deviceAdress = device;
@@ -48,7 +49,8 @@ public class Locations {
     public void updateAngle(){
         if(locations[2] != 0){
             angle = Direction.getBearings(this.locations[2], this.locations[3], this.locations[0], this.locations[1]);
-            Log.d("Angle: ", "" + angle);
+            heading = Direction.getBearingsString(angle);
+            Log.d("Angle: ", "" + angle + heading);
         }
     }
 
@@ -97,6 +99,13 @@ public class Locations {
         return "OldestLongitude: " + getOldestLongitude() + " OldestLatitude: " + getOldestLatitude();
     }
 
+    public String getHeading(){
+        return heading;
+    }
+
+    public double getAngle(){
+        return angle;
+    }
 
     public String getLocations(){
         return getOldest() + getPrevious() + getCurrent();

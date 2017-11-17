@@ -69,11 +69,13 @@ public class MulticastMessageReceiverService extends IntentService {
                             data.update(getSenderIpAddress(datagramPacket), othersLocation[0], othersLocation[1]);
                             deviceLocations.put(getSenderIpAddress(datagramPacket), data);
 
-                            double direction = Direction.getDistance(othersLocation[0], othersLocation[1],
+                            double angle = Direction.getDistance(othersLocation[0], othersLocation[1],
                                     deviceLocations.get(deviceAddress).getCurrentLatitude(),
                                     deviceLocations.get(deviceAddress).getCurrentLongitude());
 
-                            Log.d(TAG, "Location: " + direction + " km" );
+
+
+                            Log.d(TAG, "Location: " + angle + " km" );
                     }else {
                         sendReceivedDataToMulticastMessageReceivedHandler(getHandlerMessenger(intent), datagramPacket);
                     }

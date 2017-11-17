@@ -60,7 +60,6 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
     public static final HashMap<String, Locations> deviceLocations = new HashMap<>();
     public static String deviceAddress;
     private CompassLocation compass;
-    private Context context;
     Locations data;
 
 
