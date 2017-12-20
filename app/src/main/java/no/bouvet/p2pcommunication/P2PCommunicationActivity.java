@@ -82,7 +82,7 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
         setViewPager(viewPager, p2pCommunicationFragmentPagerAdapter);
 
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        compass = new CompassLocation(this);
+       // compass = new CompassLocation(this);
 
 //        Timer compassTimer = new Timer();
 //        compassTimer.schedule(new TimerTask(){
@@ -97,7 +97,7 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
         if (locationManager != null && deviceAddress != null) {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
                 Log.d(TAG, "Working...");
-                locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 30, 0, locationListener);
+                locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 30000, 0, locationListener);
                 deviceLocations.put(deviceAddress, new Locations(deviceAddress));
 
 
@@ -110,14 +110,14 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
     public void onResume() {
         super.onResume();
         registerReceiver(wifiP2pBroadcastReceiver, createWifiP2pIntentFilter());
-        compass.onStart();
+        //compass.onStart();
         if (checkLocationPermission()) {
             if (ContextCompat.checkSelfPermission(this,
                     Manifest.permission. ACCESS_FINE_LOCATION)
                     == PackageManager.PERMISSION_GRANTED) {
 
                 //Request location updates:
-                locationManager.requestLocationUpdates(locationManager.NETWORK_PROVIDER, 40, 0, locationListener);
+                locationManager.requestLocationUpdates(locationManager.GPS_PROVIDER, 30000, 0, locationListener);
             }
         }
     }
@@ -282,8 +282,8 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
             double latitude = location.getLatitude();
             double longitude = location.getLongitude();
 
-            locationGetter.add(latitude);
-            locationGetter.add(longitude);
+            locationGetter.add(0, latitude);
+            locationGetter.add(1, longitude);
 
 
 
@@ -298,7 +298,7 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
                     // write the method name here. which you want to call continuously
                     new LocationAsyncTask().execute();
                 }
-            }, 40000, 8000);
+            }, 30000, 30000);
 
             updateUserStatus(latitude, longitude);
 
@@ -392,7 +392,7 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
                             == PackageManager.PERMISSION_GRANTED) {
 
                         //Request location updates:
-                        locationManager.requestLocationUpdates(locationManager.GPS_PROVIDER, 30000, 6, locationListener);
+                       // locationManager.requestLocationUpdates(locationManager.GPS_PROVIDER, 30000, 0, locationListener);
                     }
 
                 } else {

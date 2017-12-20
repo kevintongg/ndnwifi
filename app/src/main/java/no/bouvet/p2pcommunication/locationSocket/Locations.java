@@ -50,7 +50,8 @@ public class Locations {
         if(locations[2] != 0){
             angle = Direction.getBearings(this.locations[2], this.locations[3], this.locations[0], this.locations[1]);
             heading = Direction.getBearingsString(angle);
-            Log.d("Angle: ", "" + angle + heading);
+            Log.d("Angle of other Phone: ", "" + angle);
+            Log.d("Location of other Phone" , "Current Latitude and Longitude: "+ locations[0] + ",  " + locations[1] + " || Previous Latitude and Longitude:  "+ locations[2] + ", "  + locations[3]);
         }
     }
 

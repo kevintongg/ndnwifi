@@ -63,19 +63,28 @@ public class MulticastMessageReceiverService extends IntentService {
                     if(!(test.contains(":"))) {
 
                         othersLocation = byteToDouble(bb);
+                        String ip = getSenderIpAddress(datagramPacket);
 
-                            Locations data = new Locations(getSenderIpAddress(datagramPacket), othersLocation[0], othersLocation[1]);
+                        if(ip != NetworkUtil.getMyWifiP2pIpAddress()) {
 
-                            data.update(getSenderIpAddress(datagramPacket), othersLocation[0], othersLocation[1]);
-                            deviceLocations.put(getSenderIpAddress(datagramPacket), data);
+                            if (deviceLocations.containsKey(ip)) {
+
+                                deviceLocations.get(ip).update(ip, othersLocation[0], othersLocation[1]);
+
+                            } else if (!deviceLocations.containsKey(ip)) {
+
+                                Locations data = new Locations(ip, othersLocation[0], othersLocation[1]);
+                                data.update(ip, othersLocation[0], othersLocation[1]);
+                                deviceLocations.put(getSenderIpAddress(datagramPacket), data);
+
+                            }
 
                             double angle = Direction.getDistance(othersLocation[0], othersLocation[1],
                                     deviceLocations.get(deviceAddress).getCurrentLatitude(),
                                     deviceLocations.get(deviceAddress).getCurrentLongitude());
 
-
-
-                            Log.d(TAG, "Location: " + angle + " km" );
+                            Log.d(TAG, "Location: " + angle + " km");
+                        }
                     }else {
                         sendReceivedDataToMulticastMessageReceivedHandler(getHandlerMessenger(intent), datagramPacket);
                     }
