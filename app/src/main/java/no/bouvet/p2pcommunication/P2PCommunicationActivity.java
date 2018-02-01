@@ -292,6 +292,8 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
             //Log.d("Prev Locations", "" + deviceLocations.get(deviceAddress).getLocations());
 
 
+            locationBasedSelect();
+
             Timer t = new Timer();
             t.schedule(new TimerTask(){
                 public void run(){
@@ -374,6 +376,26 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
 
         personalLocation.setText("Your Cordinates : " + latitude + ",   " + longitude + "\nGoing: " + heading );
 
+    }
+
+    private void locationBasedSelect(){
+
+        String display = "Closest to North: ";
+
+        for(java.util.Map.Entry<String, Locations> entry : deviceLocations.entrySet()){
+            String k = entry.getKey();
+            Locations v = entry.getValue();
+
+            double angle = Direction.getBearings(v.getPreviousLongitude(), v.getPreviousLatitude(), v.getCurrentLongitude(), v.getCurrentLatitude());
+            String heading = Direction.getBearingsString(angle);
+
+            if(heading.contains("N")) {
+                display += k + "\n";
+            }
+        }
+
+        Toast toast = Toast.makeText(this, display, Toast.LENGTH_SHORT);
+        toast.show();
     }
 
     @Override
