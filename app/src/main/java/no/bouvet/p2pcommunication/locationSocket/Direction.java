@@ -30,6 +30,10 @@ public class Direction {
     }
 
     public static double getBearings(double prevLong, double prevLat, double curLong, double curLat) {
+        prevLong = Math.toRadians(prevLong);
+        prevLat = Math.toRadians(prevLat);
+        curLong = Math.toRadians(curLong);
+        curLat = Math.toRadians(curLat);
         double y = Math.sin(curLong - prevLong) * Math.cos(curLat);
         double x = Math.cos(prevLat) * Math.sin(curLat) - Math.sin(prevLat) * Math.cos(curLat) * Math.cos(curLong - prevLong);
         double angle = Math.toDegrees(Math.atan2(y, x));
@@ -100,7 +104,7 @@ public class Direction {
 
     /*
     Formula to determine which user is closer to the destination
-    Uses three points to determine the angle. 
+    Uses three points to determine the angle.
      */
     public static double angleBetweenThreePoints(double previousLat, double previousLong, double currLat, double currLong, double destinationLat, double destinationLong) {
 
@@ -108,12 +112,22 @@ public class Direction {
         double CurrPrevX = currLat - previousLat;
         double CurrPrevY = currLong - previousLong;
         double dotProduct = (destinationLat * CurrPrevX) + (destinationLong * CurrPrevY);
-        double magnitude = Math.sqrt(Math.pow(destinationLat, 2) + Math.pow(destinationLong, 2));
-        double mag1 = Math.sqrt(Math.pow(CurrPrevX, 2) + Math.pow(CurrPrevY, 2));
+        double magnitude = Math.sqrt(Math.pow(destinationLat, 2) + Math.pow(destinationLong, 2)) * Math.sqrt(Math.pow(CurrPrevX, 2) + Math.pow(CurrPrevY, 2));
 
 
-        double result = dotProduct / (magnitude * mag1);
+        double result = dotProduct / (magnitude);
         return result;
 
     }
+    /*
+    Possible simple solution (?)
+     */
+
+    public static double computeTwoBearings(double previousLat, double previousLong, double currLat, double currLong, double destinationLat, double destinationLong){
+       double a = getBearings(previousLat, previousLong, currLat, currLong);
+       double b = getBearings(previousLat, previousLong, destinationLat, destinationLong);
+
+        return b - a;
+    }
+
 }
