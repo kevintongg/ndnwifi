@@ -103,7 +103,7 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
         if (locationManager != null && deviceAddress != null) {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
                 Log.d(TAG, "Working...");
-                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 30000, 0, locationListener);
+                locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 30, 0, locationListener);
                 deviceLocations.put(deviceAddress, new Locations(deviceAddress));
 
 
@@ -123,7 +123,7 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
                     == PackageManager.PERMISSION_GRANTED) {
 
                 //Request location updates:
-                //locationManager.requestLocationUpdates(locationManager.GPS_PROVIDER, 30000, 0, locationListener);
+                locationManager.requestLocationUpdates(locationManager.NETWORK_PROVIDER, 30000, 0, locationListener);
             }
         }
     }
@@ -400,7 +400,6 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
             Locations v = entry.getValue();
 
             angle = Direction.angleBetweenThreePoints(v.getPreviousLatitude(), v.getPreviousLongitude(), v.getCurrentLatitude(), v.getCurrentLongitude(), 77.652595, -111.355621);
-            System.out.println("Angle is " + angle + " key is " + k);
 
             if(value == -1){
                 key = k;
