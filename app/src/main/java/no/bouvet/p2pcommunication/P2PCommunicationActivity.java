@@ -35,6 +35,7 @@ import java.util.TimerTask;
 
 import butterknife.ButterKnife;
 import butterknife.BindView;
+import butterknife.internal.Utils;
 import no.bouvet.p2pcommunication.adapter.P2pCommunicationFragmentPagerAdapter;
 import no.bouvet.p2pcommunication.broadcastreceiver.WifiP2pBroadcastReceiver;
 import no.bouvet.p2pcommunication.fragment.CommunicationFragment;
@@ -62,12 +63,17 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
     private CompassLocation compass;
     Locations data;
 
+    final static double TEST_DESTINATION_LAT = 42.042246;
+    final static double TEST_DESTINATION_LONG = -118.665396;
+
 
     @BindView(R.id.view_pager) ViewPager viewPager;
     @BindView(R.id.my_device_name_text_view) TextView myDeviceNameTextView;
     @BindView(R.id.my_device_status_text_view) TextView myDeviceStatusTextView;
     @BindView(R.id.personal_location) TextView personalLocation;
     LocationManager locationManager;
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -97,7 +103,7 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
         if (locationManager != null && deviceAddress != null) {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
                 Log.d(TAG, "Working...");
-                locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 30000, 0, locationListener);
+                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 30000, 0, locationListener);
                 deviceLocations.put(deviceAddress, new Locations(deviceAddress));
 
 
@@ -117,7 +123,7 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
                     == PackageManager.PERMISSION_GRANTED) {
 
                 //Request location updates:
-                locationManager.requestLocationUpdates(locationManager.GPS_PROVIDER, 30000, 0, locationListener);
+                //locationManager.requestLocationUpdates(locationManager.GPS_PROVIDER, 30000, 0, locationListener);
             }
         }
     }
@@ -289,10 +295,6 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
 
             data.update(deviceAddress, longitude, latitude);
             deviceLocations.put(deviceAddress, data);
-            //Log.d("Prev Locations", "" + deviceLocations.get(deviceAddress).getLocations());
-
-
-            locationBasedSelect();
 
             Timer t = new Timer();
             t.schedule(new TimerTask(){
@@ -301,6 +303,15 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
                     new LocationAsyncTask().execute();
                 }
             }, 30000, 30000);
+
+
+            int secs = 5;
+            DelayHandler.delay(secs, new DelayHandler.DelayCallback(){
+                @Override
+                public void afterDelay() {
+                    locationBasedSelect();
+                }
+            });
 
             updateUserStatus(latitude, longitude);
 
@@ -380,21 +391,28 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
 
     private void locationBasedSelect(){
 
-        String display = "Closest to North: ";
+        String key = "empty";
+        double value = -1;
+        double angle;
 
         for(java.util.Map.Entry<String, Locations> entry : deviceLocations.entrySet()){
             String k = entry.getKey();
             Locations v = entry.getValue();
 
-            double angle = Direction.getBearings(v.getPreviousLongitude(), v.getPreviousLatitude(), v.getCurrentLongitude(), v.getCurrentLatitude());
-            String heading = Direction.getBearingsString(angle);
+            angle = Direction.angleBetweenThreePoints(v.getPreviousLatitude(), v.getPreviousLongitude(), v.getCurrentLatitude(), v.getCurrentLongitude(), 77.652595, -111.355621);
+            System.out.println("Angle is " + angle + " key is " + k);
 
-            if(heading.contains("N")) {
-                display += k + "\n";
+            if(value == -1){
+                key = k;
+                value = angle;
+            } else if(value > angle){
+                key = k;
+                value = angle;
             }
         }
 
-        Toast toast = Toast.makeText(this, display, Toast.LENGTH_SHORT);
+
+        Toast toast = Toast.makeText(this, "Closest to North: " + key + "\n", Toast.LENGTH_SHORT);
         toast.show();
     }
 

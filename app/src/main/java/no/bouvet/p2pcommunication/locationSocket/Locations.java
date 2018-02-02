@@ -13,7 +13,7 @@ public class Locations {
     double angle =0;
     String heading = "";
 
-    public Locations(String device, double longitude, double latitude){
+    public Locations(String device, double latitude, double longitude){
         this.deviceAdress = device;
         this.locations[0] = latitude;
         this.locations[1] = longitude;
@@ -23,7 +23,7 @@ public class Locations {
         this.deviceAdress = device;
     }
 
-    public void update(String deviceAdress, double longitude, double latitude){
+    public void update(String deviceAdress, double latitude, double longitude){
         if(this.deviceAdress.equals(deviceAdress)) {
             this.locations[5] = this.locations[3];
             this.locations[4] = this.locations[2];
