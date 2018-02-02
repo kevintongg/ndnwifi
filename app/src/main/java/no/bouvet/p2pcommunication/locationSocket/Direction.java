@@ -108,14 +108,26 @@ public class Direction {
      */
     public static double angleBetweenThreePoints(double previousLat, double previousLong, double currLat, double currLong, double destinationLat, double destinationLong) {
 
+        previousLat = Math.toRadians(previousLat);
+		previousLong = Math.toRadians(previousLong);
+        currLat = Math.toRadians(currLat);
+        currLong = Math.toRadians(currLong);
+        destinationLat = Math.toRadians(destinationLat);
+        destinationLong = Math.toRadians(destinationLong);
+
+
         //Calculate distance between prev and current location
         double CurrPrevX = currLat - previousLat;
         double CurrPrevY = currLong - previousLong;
-        double dotProduct = (destinationLat * CurrPrevX) + (destinationLong * CurrPrevY);
-        double magnitude = Math.sqrt(Math.pow(destinationLat, 2) + Math.pow(destinationLong, 2)) * Math.sqrt(Math.pow(CurrPrevX, 2) + Math.pow(CurrPrevY, 2));
+
+        double destPrevX = destinationLat - previousLat;
+        double destPrevY = destinationLong - previousLong;
+
+        double dotProduct = (destPrevX * CurrPrevX) + (destPrevY * CurrPrevY);
+        double magnitude = Math.sqrt(Math.pow(destPrevX, 2) + Math.pow(destPrevY, 2)) * Math.sqrt(Math.pow(CurrPrevX, 2) + Math.pow(CurrPrevY, 2));
 
 
-        double result = Math.acos(dotProduct/magnitude);
+        double result = Math.acos(Math.acos(dotProduct/magnitude));
         return result;
 
     }
