@@ -115,7 +115,7 @@ public class Direction {
         double magnitude = Math.sqrt(Math.pow(destinationLat, 2) + Math.pow(destinationLong, 2)) * Math.sqrt(Math.pow(CurrPrevX, 2) + Math.pow(CurrPrevY, 2));
 
 
-        double result = dotProduct / (magnitude);
+        double result = Math.acos(dotProduct/magnitude);
         return result;
 
     }
