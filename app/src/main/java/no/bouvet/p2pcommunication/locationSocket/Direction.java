@@ -9,8 +9,8 @@ import android.util.Log;
 public class Direction {
 
 
-    final static double testDestinationLat = 42.042246;
-    final static double testDestinationLong = -118.665396;
+    final static double TEST_DESTINATION_LAT = 42.042246;
+    final static double TEST_DESTINATION_LONG = -118.665396;
 
     //This method takes in two sets of coordinates and determines the distance in km.
 
@@ -117,17 +117,17 @@ public class Direction {
 
 
         //Calculate distance between prev and current location
-        double CurrPrevX = currLat - previousLat;
-        double CurrPrevY = currLong - previousLong;
+        double currPrevX = currLat - previousLat;
+        double currPrevY = currLong - previousLong;
 
         double destPrevX = destinationLat - previousLat;
         double destPrevY = destinationLong - previousLong;
 
-        double dotProduct = (destPrevX * CurrPrevX) + (destPrevY * CurrPrevY);
-        double magnitude = Math.sqrt(Math.pow(destPrevX, 2) + Math.pow(destPrevY, 2)) * Math.sqrt(Math.pow(CurrPrevX, 2) + Math.pow(CurrPrevY, 2));
+        double dotProduct = (destPrevX * currPrevX) + (destPrevY * currPrevY);
+        double magnitude = Math.sqrt(Math.pow(destPrevX, 2) + Math.pow(destPrevY, 2)) * Math.sqrt(Math.pow(currPrevX, 2) + Math.pow(currPrevY, 2));
 
 
-        double result = Math.acos(Math.acos(dotProduct/magnitude));
+        double result = Math.toDegrees(Math.acos(dotProduct/magnitude));
         return result;
 
     }
