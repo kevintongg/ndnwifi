@@ -15,7 +15,7 @@ public class Direction {
     //This method takes in two sets of coordinates and determines the distance in km.
 
     //TODO (lat, long) at the moment we have (long, lat).
-    public static double getDistance(double firstLong, double firstLat, double secondLong, double secondLat) {
+    public static double getDistance(double firstLat, double firstLong, double secondLat, double secondLong) {
         double Radius = 6372.8;
         double distanceLat = Math.toRadians(secondLat - firstLat);
         double distanceLong = Math.toRadians(secondLong - firstLong);
@@ -29,7 +29,7 @@ public class Direction {
         return Radius * c;
     }
 
-    public static double getBearings(double prevLong, double prevLat, double curLong, double curLat) {
+    public static double getBearings(double prevLat, double prevLong, double curLat, double curLong) {
         prevLong = Math.toRadians(prevLong);
         prevLat = Math.toRadians(prevLat);
         curLong = Math.toRadians(curLong);

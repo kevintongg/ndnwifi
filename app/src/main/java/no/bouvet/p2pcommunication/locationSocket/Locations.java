@@ -15,8 +15,8 @@ public class Locations {
 
     public Locations(String device, double longitude, double latitude){
         this.deviceAdress = device;
-        this.locations[0] = longitude;
-        this.locations[1] = latitude;
+        this.locations[0] = latitude;
+        this.locations[1] = longitude;
     }
 
     public Locations(String device){
@@ -29,8 +29,8 @@ public class Locations {
             this.locations[4] = this.locations[2];
             this.locations[3] = this.locations[1];
             this.locations[2] = this.locations[0];
-            this.locations[1] = latitude;
-            this.locations[0] = longitude;
+            this.locations[1] = longitude;
+            this.locations[0] = latitude;
             updateAngle();
         }
     }
@@ -56,27 +56,27 @@ public class Locations {
     }
 
     public double getCurrentLongitude(){
-        return locations[0];
-    }
-
-    public double getCurrentLatitude(){
         return locations[1];
     }
 
-    public double getPreviousLongitude(){
-        return locations[2];
+    public double getCurrentLatitude(){
+        return locations[0];
     }
 
-    public double getPreviousLatitude(){
+    public double getPreviousLongitude(){
         return locations[3];
     }
 
+    public double getPreviousLatitude(){
+        return locations[2];
+    }
+
     public double getOldestLongitude(){
-        return locations[4];
+        return locations[5];
     }
 
     public double getOldestLatitude(){
-        return locations[5];
+        return locations[4];
     }
 
     public String getCurrent(){
@@ -86,18 +86,18 @@ public class Locations {
     public double[] getCurrentArray(){
         double[] mLocation = new double[2];
 
-        mLocation[0] = getCurrentLongitude();
-        mLocation[1] = getCurrentLatitude();
+        mLocation[0] = getCurrentLatitude();
+        mLocation[1] = getCurrentLongitude();
 
         return mLocation;
     }
 
     public String getPrevious(){
-        return "PreviousLongitude: " + getPreviousLongitude() + " PreviousLatitude: " + getPreviousLatitude();
+        return " PreviousLatitude: " + getPreviousLatitude() +  "PreviousLongitude: " + getPreviousLongitude();
     }
 
     public String getOldest(){
-        return "OldestLongitude: " + getOldestLongitude() + " OldestLatitude: " + getOldestLatitude();
+        return " OldestLatitude: " + getOldestLatitude() + "OldestLongitude: " + getOldestLongitude();
     }
 
     public String getHeading(){
