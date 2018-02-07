@@ -61,9 +61,10 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
     public static final HashMap<String, Locations> deviceLocations = new HashMap<>();
     public static String deviceAddress;
     private CompassLocation compass;
+    private static int start = 0;
     Locations data;
     //test data
-    Locations data2;
+    Locations data2 = new Locations("ImCloser", 0, 0);
 
     final static double TEST_DESTINATION_LAT = 42.042246;
     final static double TEST_DESTINATION_LONG = -118.665396;
@@ -99,7 +100,6 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
 //                compass = new CompassLocation(context);
 //            }
 //        }, 40000, 8000);
-
 
 
         if (locationManager != null && deviceAddress != null) {
@@ -211,10 +211,9 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
     @Override
     public void onThisDeviceChanged(WifiP2pDevice wifiP2pDevice) {
         deviceAddress = wifiP2pDevice.deviceName;
-        Log.d(TAG, "Device name " + deviceAddress);
-        data = new Locations(deviceAddress, 0, 0);
-        data2 = new Locations("ImCloser", 0, 0);
 
+            data = new Locations(deviceAddress, 0, 0);
+       // Log.d(TAG, "Device name " + deviceAddress);
         myDeviceNameTextView.setText(wifiP2pDevice.deviceName);
         myDeviceStatusTextView.setText(getDeviceStatus(wifiP2pDevice.status));
     }

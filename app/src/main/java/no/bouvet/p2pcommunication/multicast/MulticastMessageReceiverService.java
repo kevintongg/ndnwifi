@@ -65,12 +65,11 @@ public class MulticastMessageReceiverService extends IntentService {
                     //In order to determine what type of data packet was sent every chat message starts with ':', this condition checks for this and determines whether the packet is
                     //being sent for location or chat.
                     if(!(test.contains(":"))) {
-
                         othersLocation = byteToDouble(bb);
                         String ip = getSenderName(datagramPacket);
 
-                       if(ip.equals(NetworkUtil.getMyWifiP2pIpAddress())) {
-                            //Log.d(TAG, "This ip " + NetworkUtil.getMyWifiP2pIpAddress());
+                       if(!ip.equals(NetworkUtil.getMyWifiP2pIpAddress())) {
+                            Log.d(TAG, "This ip " + NetworkUtil.getMyWifiP2pIpAddress() +  " " + ip);
 
                             if (deviceLocations.containsKey(ip)){
 
