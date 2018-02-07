@@ -2,6 +2,9 @@ package no.bouvet.p2pcommunication.multicast;
 
 import android.app.IntentService;
 import android.content.Intent;
+import android.net.wifi.p2p.WifiP2pDevice;
+import android.net.wifi.p2p.WifiP2pDeviceList;
+import android.net.wifi.p2p.WifiP2pManager;
 import android.os.Bundle;
 import android.os.Message;
 import android.os.Messenger;
@@ -18,6 +21,7 @@ import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 
+import no.bouvet.p2pcommunication.P2PCommunicationActivity;
 import no.bouvet.p2pcommunication.locationSocket.Direction;
 import no.bouvet.p2pcommunication.locationSocket.Locations;
 import no.bouvet.p2pcommunication.util.NetworkUtil;
@@ -63,11 +67,12 @@ public class MulticastMessageReceiverService extends IntentService {
                     if(!(test.contains(":"))) {
 
                         othersLocation = byteToDouble(bb);
-                        String ip = getSenderIpAddress(datagramPacket);
+                        String ip = getSenderName(datagramPacket);
 
-                        if(ip != NetworkUtil.getMyWifiP2pIpAddress()) {
+                       // if(ip != NetworkUtil.getMyWifiP2pIpAddress()) {
+                            //Log.d(TAG, "This ip " + NetworkUtil.getMyWifiP2pIpAddress());
 
-                            if (deviceLocations.containsKey(ip)) {
+                            if (deviceLocations.containsKey(ip)){
 
                                 deviceLocations.get(ip).update(ip, othersLocation[0], othersLocation[1]);
 
@@ -75,16 +80,12 @@ public class MulticastMessageReceiverService extends IntentService {
 
                                 Locations data = new Locations(ip, othersLocation[0], othersLocation[1]);
                                 data.update(ip, othersLocation[0], othersLocation[1]);
-                                deviceLocations.put(getSenderIpAddress(datagramPacket), data);
+                                deviceLocations.put(getSenderName(datagramPacket), data);
 
                             }
-//
-//                            double angle = Direction.getDistance(othersLocation[0], othersLocation[1],
-//                                    deviceLocations.get(deviceAddress).getCurrentLatitude(),
-//                                    deviceLocations.get(deviceAddress).getCurrentLongitude());
 
-                            //Log.d(TAG, "Location: " + angle + " km");
-                        }
+                           // Log.d(TAG, "Location: " + ip);
+                     //   }
                     }else {
                         sendReceivedDataToMulticastMessageReceivedHandler(getHandlerMessenger(intent), datagramPacket);
                     }
@@ -121,6 +122,11 @@ public class MulticastMessageReceiverService extends IntentService {
 
     private String getSenderIpAddress(DatagramPacket datagramPacket) {
         return datagramPacket.getAddress().getHostAddress();
+    }
+
+    private String getSenderName(DatagramPacket datagramPacket) {
+
+        return datagramPacket.getAddress().getHostName();
     }
 
     private String getReceivedText(DatagramPacket datagramPacket) {

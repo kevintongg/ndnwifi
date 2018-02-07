@@ -53,7 +53,7 @@ import no.bouvet.p2pcommunication.wifip2p.P2pCommunicationWifiP2pManager;
 public class P2PCommunicationActivity extends FragmentActivity implements WifiP2pListener, MulticastListener {
 
     public static final String TAG = P2PCommunicationActivity.class.getSimpleName();
-    private P2pCommunicationWifiP2pManager p2pCommunicationWifiP2pManager;
+    public static P2pCommunicationWifiP2pManager p2pCommunicationWifiP2pManager;
     private WifiP2pBroadcastReceiver wifiP2pBroadcastReceiver;
     private P2pCommunicationFragmentPagerAdapter p2pCommunicationFragmentPagerAdapter;
     private boolean wifiP2pEnabled;
@@ -62,6 +62,8 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
     public static String deviceAddress;
     private CompassLocation compass;
     Locations data;
+    //test data
+    Locations data2;
 
     final static double TEST_DESTINATION_LAT = 42.042246;
     final static double TEST_DESTINATION_LONG = -118.665396;
@@ -103,7 +105,7 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
         if (locationManager != null && deviceAddress != null) {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
                 Log.d(TAG, "Working...");
-                locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 30, 0, locationListener);
+                locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 160000, 0, locationListener);
                 deviceLocations.put(deviceAddress, new Locations(deviceAddress));
 
 
@@ -208,8 +210,11 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
 
     @Override
     public void onThisDeviceChanged(WifiP2pDevice wifiP2pDevice) {
-        deviceAddress = wifiP2pDevice.deviceAddress;
+        deviceAddress = wifiP2pDevice.deviceName;
+        Log.d(TAG, "Device name " + deviceAddress);
         data = new Locations(deviceAddress, 0, 0);
+        data2 = new Locations("ImCloser", 0, 0);
+
         myDeviceNameTextView.setText(wifiP2pDevice.deviceName);
         myDeviceStatusTextView.setText(getDeviceStatus(wifiP2pDevice.status));
     }
@@ -291,9 +296,14 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
             locationGetter.add(0, latitude);
             locationGetter.add(1, longitude);
 
+            //test data
+            data2.update("ImCloser" , 77.652115, -111.355111);
+
+            deviceLocations.put("ImCloser", data2);
 
 
-            data.update(deviceAddress, longitude, latitude);
+
+            data.update(deviceAddress, latitude, longitude);
             deviceLocations.put(deviceAddress, data);
 
             Timer t = new Timer();
@@ -302,7 +312,7 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
                     // write the method name here. which you want to call continuously
                     new LocationAsyncTask().execute();
                 }
-            }, 30000, 30000);
+            }, 16000, 16000);
 
 
             int secs = 5;
@@ -315,7 +325,7 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
 
             updateUserStatus(latitude, longitude);
 
-            Log.d("Geo_Location", "Latitude: " + latitude + ", Longitude: " + longitude);
+            //Log.d("Geo_Location", "Latitude: " + latitude + ", Longitude: " + longitude);
         }
 
         @Override
@@ -391,15 +401,19 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
 
     private void locationBasedSelect(){
 
-        String key = "empty";
+        String key = "";
         double value = -1;
         double angle;
 
+       // Log.d(TAG, "Called");
         for(java.util.Map.Entry<String, Locations> entry : deviceLocations.entrySet()){
             String k = entry.getKey();
             Locations v = entry.getValue();
 
             angle = Direction.angleBetweenThreePoints(v.getPreviousLatitude(), v.getPreviousLongitude(), v.getCurrentLatitude(), v.getCurrentLongitude(), 77.652595, -111.355621);
+
+            //Test
+            //Log.d(TAG, "ARRAY: " + entry.getKey() + " LOCATIONS " + v.getPreviousLatitude() + ", " + v.getPreviousLongitude() + ", " + v.getCurrentLatitude() + ", " + v.getCurrentLongitude() + "ANGLE ::: " + angle);
 
             if(value == -1){
                 key = k;
@@ -411,6 +425,8 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
         }
 
 
+
+        //Log.d(TAG, key);
         Toast toast = Toast.makeText(this, "Closest to North: " + key + "\n", Toast.LENGTH_SHORT);
         toast.show();
     }

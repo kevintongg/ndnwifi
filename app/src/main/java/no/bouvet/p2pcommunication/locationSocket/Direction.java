@@ -69,7 +69,7 @@ public class Direction {
             heading = "NW";
         }
 
-        Log.d("Heading", heading);
+        //Log.d("Heading", heading);
         return heading;
     }
 
