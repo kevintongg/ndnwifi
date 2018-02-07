@@ -69,7 +69,7 @@ public class MulticastMessageReceiverService extends IntentService {
                         othersLocation = byteToDouble(bb);
                         String ip = getSenderName(datagramPacket);
 
-                       // if(ip != NetworkUtil.getMyWifiP2pIpAddress()) {
+                       if(ip.equals(NetworkUtil.getMyWifiP2pIpAddress())) {
                             //Log.d(TAG, "This ip " + NetworkUtil.getMyWifiP2pIpAddress());
 
                             if (deviceLocations.containsKey(ip)){
@@ -85,7 +85,7 @@ public class MulticastMessageReceiverService extends IntentService {
                             }
 
                            // Log.d(TAG, "Location: " + ip);
-                     //   }
+                        }
                     }else {
                         sendReceivedDataToMulticastMessageReceivedHandler(getHandlerMessenger(intent), datagramPacket);
                     }
@@ -126,7 +126,7 @@ public class MulticastMessageReceiverService extends IntentService {
 
     private String getSenderName(DatagramPacket datagramPacket) {
 
-        return datagramPacket.getAddress().getHostName();
+        return datagramPacket.getAddress().getHostAddress();
     }
 
     private String getReceivedText(DatagramPacket datagramPacket) {

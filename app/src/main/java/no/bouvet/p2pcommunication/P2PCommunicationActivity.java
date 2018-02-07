@@ -413,7 +413,7 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
             angle = Direction.angleBetweenThreePoints(v.getPreviousLatitude(), v.getPreviousLongitude(), v.getCurrentLatitude(), v.getCurrentLongitude(), 77.652595, -111.355621);
 
             //Test
-            //Log.d(TAG, "ARRAY: " + entry.getKey() + " LOCATIONS " + v.getPreviousLatitude() + ", " + v.getPreviousLongitude() + ", " + v.getCurrentLatitude() + ", " + v.getCurrentLongitude() + "ANGLE ::: " + angle);
+            Log.d(TAG, "ARRAY: " + entry.getKey() + " LOCATIONS " + v.getPreviousLatitude() + ", " + v.getPreviousLongitude() + ", " + v.getCurrentLatitude() + ", " + v.getCurrentLongitude() + "ANGLE ::: " + angle);
 
             if(value == -1){
                 key = k;

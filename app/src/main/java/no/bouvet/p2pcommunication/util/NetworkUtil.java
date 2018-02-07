@@ -2,6 +2,8 @@ package no.bouvet.p2pcommunication.util;
 
 import android.util.Log;
 
+import org.apache.http.conn.util.InetAddressUtils;
+
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
@@ -56,9 +58,9 @@ public class NetworkUtil {
     }
 
     private static boolean isIpv4Address(InetAddress inetAddress) {
-        String ipAddress = inetAddress.getHostAddress();
-        return !inetAddress.isLoopbackAddress() && Inet4Address.class.isInstance(ipAddress);
-        //return !inetAddress.isLoopbackAddress() && InetAddressUtils.isIPv4Address(inetAddress.getHostAddress());
+        //String ipAddress = inetAddress.getHostAddress();
+        //return !inetAddress.isLoopbackAddress() && Inet4Address.class.isInstance(ipAddress);
+        return !inetAddress.isLoopbackAddress() && InetAddressUtils.isIPv4Address(inetAddress.getHostAddress());
     }
 
 

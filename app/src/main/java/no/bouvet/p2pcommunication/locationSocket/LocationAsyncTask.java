@@ -45,7 +45,7 @@ public class LocationAsyncTask extends AsyncTask<Void, String, Boolean> {
                 byte[] byteArray = bb.array();
                 DatagramPacket datagramPacket = new DatagramPacket(byteArray,byteArray.length, getMulticastGroupAddress(), getPort());
                 multicastSocket.send(datagramPacket);
-            Log.d(TAG, "called");
+            //Log.d(TAG, "called");
 
 
 
