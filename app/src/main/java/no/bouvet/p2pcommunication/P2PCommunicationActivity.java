@@ -2,7 +2,9 @@ package no.bouvet.p2pcommunication;
 
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
+import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.IntentFilter;
@@ -39,7 +41,6 @@ import java.util.TimerTask;
 
 import butterknife.ButterKnife;
 import butterknife.BindView;
-import butterknife.internal.Utils;
 import no.bouvet.p2pcommunication.adapter.P2pCommunicationFragmentPagerAdapter;
 import no.bouvet.p2pcommunication.broadcastreceiver.WifiP2pBroadcastReceiver;
 import no.bouvet.p2pcommunication.fragment.CommunicationFragment;
@@ -86,10 +87,14 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
     final static double TEST_DESTINATION_LONG = -118.665396;
 
 
-    @BindView(R.id.view_pager) ViewPager viewPager;
-    @BindView(R.id.my_device_name_text_view) TextView myDeviceNameTextView;
-    @BindView(R.id.my_device_status_text_view) TextView myDeviceStatusTextView;
-    @BindView(R.id.personal_location) TextView personalLocation;
+    @BindView(R.id.view_pager)
+    ViewPager viewPager;
+    @BindView(R.id.my_device_name_text_view)
+    TextView myDeviceNameTextView;
+    @BindView(R.id.my_device_status_text_view)
+    TextView myDeviceStatusTextView;
+    @BindView(R.id.personal_location)
+    TextView personalLocation;
     @BindView(R.id.am_i_host_question_text_view)
     TextView amIHostQuestionTextView;
     @BindView(R.id.host_ip_text_view)
@@ -114,7 +119,7 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
         setViewPager(viewPager, p2pCommunicationFragmentPagerAdapter);
 
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-       // compass = new CompassLocation(this);
+        // compass = new CompassLocation(this);
 
 //        Timer compassTimer = new Timer();
 //        compassTimer.schedule(new TimerTask(){
@@ -124,13 +129,14 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
 //            }
 //        }, 40000, 8000);
 
+        isBluetoothEnabled();
+
 
         if (locationManager != null && deviceAddress != null) {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
                 Log.d(TAG, "Working...");
                 locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 160000, 0, locationListener);
                 deviceLocations.put(deviceAddress, new Locations(deviceAddress));
-
 
 
             }
@@ -144,7 +150,7 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
         //compass.onStart();
         if (checkLocationPermission()) {
             if (ContextCompat.checkSelfPermission(this,
-                    Manifest.permission. ACCESS_FINE_LOCATION)
+                    Manifest.permission.ACCESS_FINE_LOCATION)
                     == PackageManager.PERMISSION_GRANTED) {
 
                 //Request location updates:
@@ -152,7 +158,31 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
             }
         }
 
-        if(currentDevice == null) currentDevice = getIntent().getParcelableExtra(WifiP2pManager.EXTRA_WIFI_P2P_DEVICE);
+        if (currentDevice == null)
+            currentDevice = getIntent().getParcelableExtra(WifiP2pManager.EXTRA_WIFI_P2P_DEVICE);
+    }
+
+    @SuppressLint("MissingPermission")
+    @SuppressWarnings("MissingPermission")
+    public Boolean isBluetoothEnabled() {
+        Boolean isBluetoothEnabled = null;
+        try {
+            PackageManager pm = this.getPackageManager();
+            int hasBluetoothPermission = pm.checkPermission(
+                    Manifest.permission.BLUETOOTH,
+                    this.getPackageName());
+            if (hasBluetoothPermission == PackageManager.PERMISSION_GRANTED) {
+                BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+                if (bluetoothAdapter != null) {
+                    isBluetoothEnabled = bluetoothAdapter.isEnabled();
+                }
+            }
+        } catch (SecurityException e) {
+            // do nothing since we don't have permissions
+        } catch (NoClassDefFoundError e) {
+            // Some phones doesn't have this class. Just ignore it
+        }
+        return isBluetoothEnabled;
     }
 
 
