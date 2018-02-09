@@ -64,7 +64,7 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
     private static int start = 0;
     Locations data;
     //test data
-    Locations data2 = new Locations("ImCloser", 0, 0);
+    Locations data2 = new Locations("Closest", 0, 0);
 
     final static double TEST_DESTINATION_LAT = 42.042246;
     final static double TEST_DESTINATION_LONG = -118.665396;
@@ -295,11 +295,15 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
             locationGetter.add(0, latitude);
             locationGetter.add(1, longitude);
 
+
+            data2.update("Closest" , 77.652111, -111.355112);
+
+            deviceLocations.put("Closest", data2);
+
             //test data
-            data2.update("ImCloser" , 77.652115, -111.355111);
+            data2.update("Closest" , 77.652115, -111.355111);
 
-            deviceLocations.put("ImCloser", data2);
-
+            deviceLocations.put("Closest", data2);
 
 
             data.update(deviceAddress, latitude, longitude);
