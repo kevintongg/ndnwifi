@@ -69,7 +69,7 @@ public class MulticastMessageReceiverService extends IntentService {
                         String ip = getSenderName(datagramPacket);
 
                        if(!ip.equals(NetworkUtil.getMyWifiP2pIpAddress())) {
-                            Log.d(TAG, "This ip " + NetworkUtil.getMyWifiP2pIpAddress() +  " " + ip);
+                           // Log.d(TAG, "This ip " + NetworkUtil.getMyWifiP2pIpAddress() +  " " + ip);
 
                             if (deviceLocations.containsKey(ip)){
 

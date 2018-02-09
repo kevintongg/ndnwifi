@@ -24,7 +24,7 @@ public class ChatListAdapter extends ArrayAdapter<MulticastMessage> {
     private int layoutResourceId;
     LocationManager locationManager;
     private double longitude, latitude;
-    @BindView(R.id.location_text_view)
+   // @BindView(R.id.location_text_view)
     TextView location_text_view;
 
 
@@ -55,15 +55,16 @@ public class ChatListAdapter extends ArrayAdapter<MulticastMessage> {
         }
 
         MulticastMessage multicastMessage = getItem(position);
-        if (multicastMessage.isSentByMe()) {
+        if (!(multicastMessage.isSentByMe())) {
+            chatListAdapterViewHolder.messageSentLayout.setVisibility(View.GONE);
+            chatListAdapterViewHolder.messageReceivedLayout.setVisibility(View.VISIBLE);
+            chatListAdapterViewHolder.messageReceivedTextView.setText(multicastMessage.getSenderIpAddress() + ":\n" + multicastMessage.getText());
+            //chatListAdapterViewHolder.locationTextView.setText("Londitude:" + longitude + " Latutude:" + latitude);
+
+        } else if(multicastMessage.isSentByMe()) {
             chatListAdapterViewHolder.messageReceivedLayout.setVisibility(View.GONE);
             chatListAdapterViewHolder.messageSentLayout.setVisibility(View.VISIBLE);
             chatListAdapterViewHolder.messageSentTextView.setText(multicastMessage.getText());
-        } else {
-            chatListAdapterViewHolder.messageReceivedLayout.setVisibility(View.VISIBLE);
-            chatListAdapterViewHolder.messageSentLayout.setVisibility(View.GONE);
-            chatListAdapterViewHolder.messageReceivedTextView.setText(multicastMessage.getSenderIpAddress() + ":\n" + multicastMessage.getText());
-            chatListAdapterViewHolder.locationTextView.setText("Londitude:" + longitude + " Latutude:" + latitude);
         }
 
         return convertView;

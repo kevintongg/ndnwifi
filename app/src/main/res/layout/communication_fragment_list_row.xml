@@ -66,18 +66,18 @@
                 android:paddingLeft="@dimen/chat_bubble_padding"
                 android:textColor="@android:color/primary_text_dark"/>
 
-            <TextView
-                android:id="@+id/location_text_view"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_margin="5dip"
-                android:background="@drawable/chat_bubble_sent"
-                android:paddingTop="@dimen/chat_bubble_padding"
-                android:paddingBottom="@dimen/chat_bubble_padding"
-                android:paddingRight="@dimen/chat_bubble_double_padding"
-                android:paddingLeft="@dimen/chat_bubble_padding"
-                android:textColor="@android:color/primary_text_dark"/>
+            <!--<TextView-->
+                <!--android:id="@+id/location_text_view"-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:layout_gravity="center"-->
+                <!--android:layout_margin="5dip"-->
+                <!--android:background="@drawable/chat_bubble_sent"-->
+                <!--android:paddingTop="@dimen/chat_bubble_padding"-->
+                <!--android:paddingBottom="@dimen/chat_bubble_padding"-->
+                <!--android:paddingRight="@dimen/chat_bubble_double_padding"-->
+                <!--android:paddingLeft="@dimen/chat_bubble_padding"-->
+                <!--android:textColor="@android:color/primary_text_dark"/>-->
 
 
             <ImageView

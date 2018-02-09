@@ -14,7 +14,7 @@ public class ChatListAdapterViewHolder {
     @BindView(R.id.message_received_text_view) TextView messageReceivedTextView;
     @BindView(R.id.message_sent_layout) RelativeLayout messageSentLayout;
     @BindView(R.id.message_sent_text_view) TextView messageSentTextView;
-    @BindView(R.id.location_text_view) TextView locationTextView;
+   // @BindView(R.id.location_text_view) TextView locationTextView;
 
 
     public ChatListAdapterViewHolder(View view) {
