@@ -1,6 +1,9 @@
 package no.bouvet.p2pcommunication.fragment;
 
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.net.wifi.p2p.WifiP2pDevice;
 import android.net.wifi.p2p.WifiP2pDeviceList;
 import android.net.wifi.p2p.WifiP2pInfo;
@@ -16,10 +19,18 @@ import android.view.ViewGroup;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import butterknife.ButterKnife;
 import butterknife.BindView;
 import butterknife.Unbinder;
+import no.bouvet.p2pcommunication.Client;
+import no.bouvet.p2pcommunication.FileClient;
+import no.bouvet.p2pcommunication.FileServer;
+import no.bouvet.p2pcommunication.P2PCommunicationActivity;
 import no.bouvet.p2pcommunication.R;
+import no.bouvet.p2pcommunication.Server;
 import no.bouvet.p2pcommunication.adapter.DiscoveryListAdapter;
 import no.bouvet.p2pcommunication.adapter.P2pCommunicationFragmentPagerAdapter;
 import no.bouvet.p2pcommunication.listener.discovery.DiscoveryStateListener;
@@ -37,6 +48,11 @@ public class DiscoveryAndConnectionFragment extends ListFragment implements Disc
     private WifiP2pListener wifiP2pListener;
     Unbinder unbinder;
     private MulticastListener multicastListener;
+    public static String clickedDeviceIp;
+    public static final String SENDER_IP_ADDRESS = "SENDER_IP_ADDRESS";
+    public P2PCommunicationActivity p2PCommunicationActivity;
+    private List<WifiP2pDevice> peers = new ArrayList<WifiP2pDevice>();
+
 
     @BindView(R.id.search_layout) RelativeLayout searchLayout;
     @BindView(R.id.no_devices_available_layout) RelativeLayout noDevicesAvailableLayout;
@@ -79,9 +95,132 @@ public class DiscoveryAndConnectionFragment extends ListFragment implements Disc
 
     @Override
     public void onListItemClick(ListView listView, View view, int position, long id) {
-        super.onListItemClick(listView, view, position, id);
-        WifiP2pDevice wifiP2pDevice = discoveryListAdapter.getItem(position);
-        wifiP2pListener.onConnect(wifiP2pDevice);
+            super.onListItemClick(listView, view, position, id);
+            WifiP2pDevice wifiP2pDevice = discoveryListAdapter.getItem(position);
+
+            if(wifiP2pDevice.status==WifiP2pDevice.CONNECTED){
+
+//
+//            Intent intent = new Intent(getActivity(), FileServer.class);
+//            startActivity(intent);
+
+
+
+
+//            AlertDialog.Builder builder1 = new AlertDialog.Builder(getActivity());
+//            builder1.setMessage("Choose one");
+//            builder1.setCancelable(true);
+//
+//
+//
+//
+//
+//            builder1.setPositiveButton(
+//                    "Create Chat Room",
+//                    new DialogInterface.OnClickListener() {
+//                        public void onClick(DialogInterface dialog, int id) {
+//
+//
+//                            Intent intent = new Intent(getActivity(), Server.class);
+//                  startActivity(intent);
+//                        }
+//                    });
+//
+//            builder1.setNegativeButton(
+//                    "Join Chat Room",
+//                    new DialogInterface.OnClickListener() {
+//                        public void onClick(DialogInterface dialog, int id) {
+//
+//
+//                            Intent intent = new Intent(getActivity(), Client.class);
+//            startActivity(intent);
+//                        }
+//                    });
+//
+//            builder1.setNeutralButton(
+//                    "Upload File",
+//                    new DialogInterface.OnClickListener() {
+//                        public void onClick(DialogInterface dialog, int id) {
+//
+//
+//                            Intent intent = new Intent(getActivity(), FileServer.class);
+//                            startActivity(intent);
+//                        }
+//                    });
+//
+//
+//            AlertDialog alert11 = builder1.create();
+//            alert11.show();
+
+
+                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                builder.setTitle("Choose 1");
+                builder.setItems(new CharSequence[]{"Create chat room","Join chat room","Upload file","Download File"},
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+
+                                switch (which) {
+                                    case 0:
+                                        Intent intent = new Intent(getActivity(), Server.class);
+                                        startActivity(intent);
+                                        break;
+                                    case 1:
+                                        Intent intent2 = new Intent(getActivity(), Client.class);
+                                        startActivity(intent2);
+                                        break;
+                                    case 2:
+                                        Intent intent3 = new Intent(getActivity(), FileServer.class);
+                                        startActivity(intent3);
+                                        break;
+                                    case 3:
+                                        Intent intent4 = new Intent(getActivity(), FileClient.class);
+                                        startActivity(intent4);
+                                        break;
+                                }
+                            }
+                        });
+                builder.create().show();
+
+
+
+
+
+
+
+
+
+//            try {
+//                privateMessage(current.deviceName, wifiP2pDevice.deviceName);
+//                MulticastSocket multicastSocket = createMulticastSocket();
+//                String messageToBeSent =  wifiP2pDevice.deviceName;
+//
+//                DatagramPacket datagramPacket = new DatagramPacket(messageToBeSent.getBytes(), messageToBeSent.length(), getMulticastGroupAddress(), getPort());
+//                multicastSocket.send(datagramPacket);
+//
+//                String senderIpAddress = "";
+//
+//                try{
+//                    InetAddress inetAddress = InetAddress.getByName("");
+//                    //start socket
+//                    Log.d(TAG, "Server");
+//                    Log.d(TAG, "Connected as peer");
+//                    p2PCommunicationActivity.connectSingle(true, inetAddress);
+//                }catch (Exception e){
+//                    e.printStackTrace();
+//                }
+//
+//                Log.d(TAG, "sent");
+//
+//            } catch (IOException ioException) {
+//                Log.e(TAG, ioException.toString());
+//            }
+            } else {
+                wifiP2pListener.onConnect(wifiP2pDevice);
+                clickedDeviceIp = wifiP2pDevice.deviceAddress;
+
+                Log.i(TAG, wifiP2pDevice.deviceAddress);
+            }
+
     }
 
     @Override

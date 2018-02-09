@@ -65,6 +65,13 @@
                 android:gravity="bottom" />
 
             <TextView
+                android:id="@+id/host_ip_text_view"
+                android:layout_width="fill_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:gravity="top" />
+
+            <TextView
                 android:id="@+id/personal_location"
                 android:layout_width="fill_parent"
                 android:layout_height="0dp"

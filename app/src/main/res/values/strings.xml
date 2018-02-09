@@ -61,6 +61,10 @@
   <string name="has_been_reset">Has been reset</string>
   <string name="btn_send">Send</string>
   <string name="txt_hint">Hint</string>
+  <string name="title_activity_server">Chat Room</string>
+  <string name="title_activity_client">Chat Room</string>
+  <string name="title_file_client">File Transfer</string>
+  <string name="title_file_server">File Transfer</string>
 
 
   /////////////////

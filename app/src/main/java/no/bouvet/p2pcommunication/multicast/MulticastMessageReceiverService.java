@@ -125,7 +125,7 @@ public class MulticastMessageReceiverService extends IntentService {
 
     private String getSenderName(DatagramPacket datagramPacket) {
 
-        return datagramPacket.getAddress().getHostAddress();
+        return datagramPacket.getAddress().getHostName();
     }
 
     private String getReceivedText(DatagramPacket datagramPacket) {

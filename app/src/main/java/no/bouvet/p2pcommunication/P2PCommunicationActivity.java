@@ -18,6 +18,7 @@ import android.net.wifi.p2p.WifiP2pManager;
 import android.net.wifi.p2p.WifiP2pManager.ConnectionInfoListener;
 import android.net.wifi.p2p.WifiP2pManager.PeerListListener;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
@@ -27,6 +28,9 @@ import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import java.io.IOException;
+import java.net.InetAddress;
 import java.util.HashMap;
 import java.util.ArrayList;
 import java.util.List;
@@ -48,6 +52,8 @@ import no.bouvet.p2pcommunication.listener.wifip2p.WifiP2pListener;
 import no.bouvet.p2pcommunication.locationSocket.Direction;
 import no.bouvet.p2pcommunication.locationSocket.LocationAsyncTask;
 import no.bouvet.p2pcommunication.locationSocket.Locations;
+import no.bouvet.p2pcommunication.singleSocket.ClientSocketHandler;
+import no.bouvet.p2pcommunication.singleSocket.GroupOwnerSocketHandler;
 import no.bouvet.p2pcommunication.wifip2p.P2pCommunicationWifiP2pManager;
 
 public class P2PCommunicationActivity extends FragmentActivity implements WifiP2pListener, MulticastListener {
@@ -62,6 +68,16 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
     public static String deviceAddress;
     private CompassLocation compass;
     private static int start = 0;
+    public static boolean isChatOn = false;
+    public static final int SERVER_PORT = 4545;
+    public static WifiP2pDevice currentDevice;
+
+    public static String devicesInChat = "";
+
+    public static final int MESSAGE_READ = 0x400 + 1;
+    public static final int MY_HANDLE = 0x400 + 2;
+    private Handler handler;
+
     Locations data;
     //test data
     Locations data2 = new Locations("Closest", 0, 0);
@@ -74,8 +90,15 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
     @BindView(R.id.my_device_name_text_view) TextView myDeviceNameTextView;
     @BindView(R.id.my_device_status_text_view) TextView myDeviceStatusTextView;
     @BindView(R.id.personal_location) TextView personalLocation;
+    @BindView(R.id.am_i_host_question_text_view)
+    TextView amIHostQuestionTextView;
+    @BindView(R.id.host_ip_text_view)
+    TextView hostIpTextView;
     LocationManager locationManager;
 
+    public Handler getHandler() {
+        return handler;
+    }
 
 
     @Override
@@ -128,6 +151,8 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
                 locationManager.requestLocationUpdates(locationManager.NETWORK_PROVIDER, 30000, 0, locationListener);
             }
         }
+
+        if(currentDevice == null) currentDevice = getIntent().getParcelableExtra(WifiP2pManager.EXTRA_WIFI_P2P_DEVICE);
     }
 
 
@@ -211,9 +236,7 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
     @Override
     public void onThisDeviceChanged(WifiP2pDevice wifiP2pDevice) {
         deviceAddress = wifiP2pDevice.deviceName;
-
-            data = new Locations(deviceAddress, 0, 0);
-       // Log.d(TAG, "Device name " + deviceAddress);
+        data = new Locations(deviceAddress, 0, 0);
         myDeviceNameTextView.setText(wifiP2pDevice.deviceName);
         myDeviceStatusTextView.setText(getDeviceStatus(wifiP2pDevice.status));
     }
@@ -221,11 +244,22 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
     @Override
     public void onGroupHostInfoChanged(WifiP2pInfo wifiP2pInfo) {
         if (wifiP2pInfo != null && wifiP2pInfo.groupFormed && wifiP2pInfo.isGroupOwner) {
-            // personalLocation.setText(getString(R.string.ip_capital_letters) + ": " + wifiP2pInfo.groupOwnerAddress.getHostAddress());
+            amIHostQuestionTextView.setText(
+                    getString(R.string.am_i_host_question) + " " + getResources().getString(R.string.yes));
+            hostIpTextView.setText(
+                    getString(R.string.ip_capital_letters) + ": " + wifiP2pInfo.groupOwnerAddress
+                            .getHostAddress());
         } else if (wifiP2pInfo != null && wifiP2pInfo.groupFormed) {
-            // personalLocation.setText("");
+            amIHostQuestionTextView.setText(
+                    getString(R.string.am_i_host_question) + " " + getResources().getString(R.string.no));
+            hostIpTextView.setText(
+                    getString(R.string.ip_capital_letters) + ": " + wifiP2pInfo.groupOwnerAddress
+                            .getHostAddress());
+
+
         } else {
-            //personalLocation.setText("");
+            amIHostQuestionTextView.setText("");
+            hostIpTextView.setText("");
         }
     }
 
@@ -280,6 +314,38 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
         }
     }
 
+    public void connectSingle(Boolean amihost, InetAddress ip) {
+        Thread handler = null;
+        /*
+         * The group owner accepts connections using a server socket and then spawns a
+         * client socket for every client. This is handled by {@code
+         * GroupOwnerSocketHandler}
+         */
+
+        if (amihost) {
+            Log.d(TAG, "Connected as group owner");
+            try {
+                handler = new GroupOwnerSocketHandler(
+                        ( this).getHandler());
+                handler.start();
+            } catch (IOException e) {
+                Log.d(TAG,
+                        "Failed to create a server thread - " + e.getMessage());
+                return;
+            }
+        } else {
+            Log.d(TAG, "Connected as peer");
+            handler = new ClientSocketHandler(
+                    ( this).getHandler(),
+                    ip);
+            handler.start();
+        }
+//        chatFragment = new WifiChatFragment();
+//        getFragmentManager().beginTransaction()
+//                .replace(R.id.container_root, chatFragment).commit();
+//        statusTxtView.setVisibility(View.GONE);
+    }
+
 
 
     //Location listerner gets called when new location is being requested
@@ -296,12 +362,12 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
             locationGetter.add(1, longitude);
 
 
-            data2.update("Closest" , 77.652111, -111.355112);
+            data2.update("Closest" , 42.042246, -111.355112);
 
             deviceLocations.put("Closest", data2);
 
             //test data
-            data2.update("Closest" , 77.652115, -111.355111);
+            data2.update("Closest" , 42.042246, -111.355621);
 
             deviceLocations.put("Closest", data2);
 
@@ -413,7 +479,7 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
             String k = entry.getKey();
             Locations v = entry.getValue();
 
-            angle = Direction.angleBetweenThreePoints(v.getPreviousLatitude(), v.getPreviousLongitude(), v.getCurrentLatitude(), v.getCurrentLongitude(), 77.652595, -111.355621);
+            angle = Direction.angleBetweenThreePoints(v.getPreviousLatitude(), v.getPreviousLongitude(), v.getCurrentLatitude(), v.getCurrentLongitude(), 42.042246, -111.355621);
 
             //Test
             Log.d(TAG, "ARRAY: " + entry.getKey() + " LOCATIONS " + v.getPreviousLatitude() + ", " + v.getPreviousLongitude() + ", " + v.getCurrentLatitude() + ", " + v.getCurrentLongitude() + "ANGLE ::: " + angle);
