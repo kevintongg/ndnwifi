@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <color name="white">#FFFFFF</color>
+    <color name="black_opacity_60">#99000000</color>
+    <color name="blue_theme">#005FBF</color>
+
+    <!-- http://www.google.com/design/spec/style/color.html#color-color-palette -->
+    <color name="green_500">#4CAF50</color>
+    <color name="green_900">#1B5E20</color>
+    <color name="light_blue_900">#01579B</color>
+    <color name="blue_900">#0D47A1</color>
+    <color name="indigo_100">#C5CAE9</color>
+    <color name="indigo_500">#3F51B5</color>
+    <color name="indigo_700">#303F9F</color>
+    <color name="teal_100">#B2DFDB</color>
+    <color name="teal_500">#009688</color>
+    <color name="teal_800">#00695C</color>
+
+</resources>
