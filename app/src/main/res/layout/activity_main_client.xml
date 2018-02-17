@@ -21,7 +21,15 @@
             android:id="@+id/infoip"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textStyle="italic" />
+            android:textStyle="italic"
+            android:visibility="gone" />
+
+        <EditText
+            android:id="@+id/address"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="ip address"
+            android:visibility="gone" />
 
         <EditText
             android:id="@+id/username"
@@ -29,15 +37,9 @@
             android:layout_height="wrap_content"
             android:hint="User name" />
 
-        <EditText
-            android:id="@+id/address"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="ip address" />
-
         <Button
             android:id="@+id/connect"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Connect..." />
     </LinearLayout>
@@ -49,11 +51,17 @@
         android:orientation="vertical"
         android:visibility="gone" >
 
-        <!--<Button-->
-            <!--android:id="@+id/send_file"-->
-            <!--android:layout_width="match_parent"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:text="Send File" />-->
+        <Button
+            android:id="@+id/send_file"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Send File" />
+
+        <Button
+            android:id="@+id/get_file"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Get File" />
 
         <EditText
             android:id="@+id/say"
@@ -63,13 +71,13 @@
 
         <Button
             android:id="@+id/send"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Send" />
 
         <Button
             android:id="@+id/disconnect"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Disconnect" />
 

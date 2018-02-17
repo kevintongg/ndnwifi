@@ -17,6 +17,14 @@
         android:orientation="vertical"
         android:visibility="visible" >
 
+
+        <EditText
+            android:id="@+id/address"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:hint="User name"
+            android:visibility="gone" />
+
         <EditText
             android:id="@+id/username"
             android:layout_width="match_parent"
@@ -25,7 +33,7 @@
 
         <Button
             android:id="@+id/connect"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Connect..." />
     </LinearLayout>
@@ -38,23 +46,32 @@
         android:orientation="vertical"
         android:visibility="gone" >
 
-        <!--<Button-->
-            <!--android:id="@+id/get_file"-->
-            <!--android:layout_width="match_parent"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:text="Get file" />-->
+        <Button
+            android:id="@+id/get_file"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Get file" />
+
+        <Button
+            android:id="@+id/send_file"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Send file" />
+
 
         <TextView
-        android:id="@+id/infoport"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textStyle="italic" />
+            android:id="@+id/infoport"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textStyle="italic"
+            android:visibility="gone" />
 
         <TextView
             android:id="@+id/infoip"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textStyle="italic" />
+            android:textStyle="italic"
+            android:visibility="gone" />
 
         <EditText
             android:id="@+id/say"
@@ -64,19 +81,19 @@
 
         <Button
             android:id="@+id/send"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Send" />
 
-    <ScrollView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" >
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" >
 
-        <TextView
-            android:id="@+id/chatmsg"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
-    </ScrollView>
+            <TextView
+                android:id="@+id/chatmsg"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+        </ScrollView>
     </LinearLayout>
 
 </LinearLayout>

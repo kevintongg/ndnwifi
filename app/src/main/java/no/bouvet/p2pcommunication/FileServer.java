@@ -1,9 +1,14 @@
 package no.bouvet.p2pcommunication;
 
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Intent;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.support.v4.app.NotificationCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
@@ -38,14 +43,14 @@ public class FileServer extends AppCompatActivity {
 	TextView infoIp, infoPort;
 	Button fileButton,connectDevice;
 	private static final int MY_INTENT_CLICK=302;
-	 String filePath, ServerIp;
+	String filePath, ServerIp;
 	static final int SocketServerPORT = 8080;
 	ServerSocket serverSocket;
 	EditText editTextAddress;
-    ArrayList<Node> listNote;
+	ArrayList<Node> listNote;
 
 	ServerSocketThread serverSocketThread;
-	
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -61,12 +66,12 @@ public class FileServer extends AppCompatActivity {
 		connectDevice = (Button) findViewById(R.id.connect_device);
 
 
-        listNote = new ArrayList<>();
-        readAddresses();
+		listNote = new ArrayList<>();
+		readAddresses();
 
-        for(int i=0; i<listNote.size(); i++){
-            editTextAddress.append(listNote.get(i).toString());
-        }
+		for(int i=0; i<listNote.size(); i++){
+			editTextAddress.append(listNote.get(i).toString());
+		}
 
 
 		//get file
@@ -107,54 +112,52 @@ public class FileServer extends AppCompatActivity {
 	}
 
 
-    private void readAddresses() {
-        listNote.clear();
-        BufferedReader bufferedReader = null;
+	private void readAddresses() {
+		listNote.clear();
+		BufferedReader bufferedReader = null;
 
-        try {
-            bufferedReader = new BufferedReader(new FileReader("/proc/net/arp"));
+		try {
+			bufferedReader = new BufferedReader(new FileReader("/proc/net/arp"));
 
-            String line;
-            while ((line = bufferedReader.readLine()) != null) {
-                String[] splitted = line.split(" +");
-                if (splitted != null && splitted.length >= 4) {
-                    String ip = splitted[0];
-                    String mac = splitted[3];
-                    if (mac.matches("..:..:..:..:..:..")) {
-                        Node thisNode = new Node(ip);
-                        listNote.add(thisNode);
-                    }
-                }
-            }
+			String line;
+			while ((line = bufferedReader.readLine()) != null) {
+				String[] splitted = line.split(" +");
+				if (splitted != null && splitted.length >= 4) {
+					String ip = splitted[0];
+					String mac = splitted[3];
+					if (mac.matches("..:..:..:..:..:..")) {
+						Node thisNode = new Node(ip);
+						listNote.add(thisNode);
+					}
+				}
+			}
 
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally{
-            try {
-                bufferedReader.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-    }
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally{
+			try {
+				bufferedReader.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+	}
 
-    class Node {
-        String ip;
-
-
-        Node(String ip){
-            this.ip = ip;
-        }
-
-        @Override
-        public String toString() {
-            return ip ;
-        }
-    }
+	class Node {
+		String ip;
 
 
+		Node(String ip){
+			this.ip = ip;
+		}
+
+		@Override
+		public String toString() {
+			return ip ;
+		}
+	}
 
 
 
@@ -165,8 +168,11 @@ public class FileServer extends AppCompatActivity {
 
 
 
+	public static final int NOTIFICATION_ID = 1;
 
-    private class ClientRxThread extends Thread {
+
+
+	private class ClientRxThread extends Thread {
 		String dstAddress;
 		int dstPort;
 
@@ -209,6 +215,32 @@ public class FileServer extends AppCompatActivity {
 				}
 
 				socket.close();
+
+
+				NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext());
+				builder.setSmallIcon(R.drawable.chat_bubble_received);
+				Intent intent=new Intent();
+				intent.setAction(Intent.ACTION_VIEW);
+				intent.setDataAndType(Uri.fromFile(file), "image/*");
+
+
+
+				PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, intent, 0);
+				builder.setContentIntent(pendingIntent);
+
+				builder.setLargeIcon(BitmapFactory.decodeResource(getResources(), R.drawable.ic_launcher));
+
+				builder.setContentTitle("You Got An Image");
+
+				builder.setContentText("Image Arrived");
+
+				builder.setSubText("Tap to view image");
+				builder.setDefaults(Notification.DEFAULT_ALL);
+				builder.setAutoCancel(true);
+
+				NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+
+				notificationManager.notify(NOTIFICATION_ID, builder.build());
 
 				FileServer.this.runOnUiThread(new Runnable() {
 
@@ -282,7 +314,7 @@ public class FileServer extends AppCompatActivity {
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
-		
+
 		if (serverSocket != null) {
 			try {
 				serverSocket.close();
@@ -323,23 +355,23 @@ public class FileServer extends AppCompatActivity {
 
 		return ip;
 	}
-	
+
 	public class ServerSocketThread extends Thread {
 
 		@Override
 		public void run() {
 			Socket socket = null;
-			
+
 			try {
 				serverSocket = new ServerSocket(SocketServerPORT);
-//				FileServer.this.runOnUiThread(new Runnable() {
+//              FileServer.this.runOnUiThread(new Runnable() {
 //
-//					@Override
-//					public void run() {
-//						infoPort.setText("I'm waiting here: "
-//							+ serverSocket.getLocalPort());
-//					}});
-				
+//                  @Override
+//                  public void run() {
+//                      infoPort.setText("I'm waiting here: "
+//                          + serverSocket.getLocalPort());
+//                  }});
+
 				while (true) {
 					socket = serverSocket.accept();
 					FileTxThread fileTxThread = new FileTxThread(socket);
@@ -361,10 +393,10 @@ public class FileServer extends AppCompatActivity {
 		}
 
 	}
-	
+
 	public class FileTxThread extends Thread {
 		Socket socket;
-		
+
 		FileTxThread(Socket socket){
 			this.socket= socket;
 		}
@@ -380,23 +412,23 @@ public class FileServer extends AppCompatActivity {
 			try {
 				bis = new BufferedInputStream(new FileInputStream(file));
 				bis.read(bytes, 0, bytes.length);
-				
+
 				ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
 				oos.writeObject(bytes);
 				oos.flush();
-				
+
 				socket.close();
-				
+
 				final String sentMsg = "File sent to: " + socket.getInetAddress();
 				FileServer.this.runOnUiThread(new Runnable() {
 
 					@Override
 					public void run() {
 						Toast.makeText(FileServer.this,
-								sentMsg, 
+								sentMsg,
 								Toast.LENGTH_LONG).show();
 					}});
-				
+
 			} catch (FileNotFoundException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -411,7 +443,7 @@ public class FileServer extends AppCompatActivity {
 					e.printStackTrace();
 				}
 			}
-			
+
 		}
 	}
 }

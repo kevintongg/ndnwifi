@@ -7,6 +7,7 @@ import android.app.AlertDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.location.Location;
@@ -19,8 +20,10 @@ import android.net.wifi.p2p.WifiP2pInfo;
 import android.net.wifi.p2p.WifiP2pManager;
 import android.net.wifi.p2p.WifiP2pManager.ConnectionInfoListener;
 import android.net.wifi.p2p.WifiP2pManager.PeerListListener;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.provider.Settings;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
@@ -65,10 +68,8 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
     private P2pCommunicationFragmentPagerAdapter p2pCommunicationFragmentPagerAdapter;
     private boolean wifiP2pEnabled;
     public static ArrayList<Double> locationGetter = new ArrayList<>();
-    public static final HashMap<String, Locations> deviceLocations = new HashMap<>();
+    public static HashMap<String, Locations> deviceLocations = new HashMap<>();
     public static String deviceAddress;
-    private CompassLocation compass;
-    private static int start = 0;
     public static boolean isChatOn = false;
     public static final int SERVER_PORT = 4545;
     public static WifiP2pDevice currentDevice;
@@ -80,6 +81,7 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
     private Handler handler;
 
     Locations data;
+
     //test data
     Locations data2 = new Locations("Closest", 0, 0);
 
@@ -105,7 +107,6 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
         return handler;
     }
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -119,49 +120,31 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
         setViewPager(viewPager, p2pCommunicationFragmentPagerAdapter);
 
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        // compass = new CompassLocation(this);
-
-//        Timer compassTimer = new Timer();
-//        compassTimer.schedule(new TimerTask(){
-//            public void run(){
-//                // write the method name here. which you want to call continuously
-//                compass = new CompassLocation(context);
-//            }
-//        }, 40000, 8000);
 
         isBluetoothEnabled();
-
+        isStoragePermissionGranted();
 
         if (locationManager != null && deviceAddress != null) {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
                 Log.d(TAG, "Working...");
                 locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 160000, 0, locationListener);
                 deviceLocations.put(deviceAddress, new Locations(deviceAddress));
-
-
             }
         }
+        isLocationEnabled();
     }
 
     @Override
     public void onResume() {
         super.onResume();
         registerReceiver(wifiP2pBroadcastReceiver, createWifiP2pIntentFilter());
-        //compass.onStart();
-        if (checkLocationPermission()) {
-            if (ContextCompat.checkSelfPermission(this,
-                    Manifest.permission.ACCESS_FINE_LOCATION)
-                    == PackageManager.PERMISSION_GRANTED) {
-
-                //Request location updates:
-                locationManager.requestLocationUpdates(locationManager.NETWORK_PROVIDER, 30000, 0, locationListener);
-            }
-        }
+        isLocationEnabled();
 
         if (currentDevice == null)
             currentDevice = getIntent().getParcelableExtra(WifiP2pManager.EXTRA_WIFI_P2P_DEVICE);
     }
 
+    /* --------------------------------------- Permission Requests --------------------------------------- */
     @SuppressLint("MissingPermission")
     @SuppressWarnings("MissingPermission")
     public Boolean isBluetoothEnabled() {
@@ -185,8 +168,27 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
         return isBluetoothEnabled;
     }
 
+    public  boolean isStoragePermissionGranted() {
+        if (Build.VERSION.SDK_INT >= 23) {
+            if (checkSelfPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                    == PackageManager.PERMISSION_GRANTED) {
+                Log.v(TAG,"Permission is granted");
+                return true;
+            } else {
+
+                Log.v(TAG,"Permission is revoked");
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
+                return false;
+            }
+        }
+        else { //permission is automatically granted on sdk<23 upon installation
+            Log.v(TAG,"Permission is granted");
+            return true;
+        }
+    }
 
 
+    /* --------------------------------------- Wi-Fi Direct Methods --------------------------------------- */
     @Override
     public void onPause() {
         super.onPause();
@@ -205,7 +207,6 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
     }
 
 
-    //Call socket here (?)
     @Override
     public void onStartPeerDiscovery() {
         if (wifiP2pEnabled) {
@@ -344,46 +345,45 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
         }
     }
 
-    public void connectSingle(Boolean amihost, InetAddress ip) {
-        Thread handler = null;
-        /*
-         * The group owner accepts connections using a server socket and then spawns a
-         * client socket for every client. This is handled by {@code
-         * GroupOwnerSocketHandler}
-         */
+//    public void connectSingle(Boolean amihost, InetAddress ip) {
+//        Thread handler = null;
+//        /*
+//         * The group owner accepts connections using a server socket and then spawns a
+//         * client socket for every client. This is handled by {@code
+//         * GroupOwnerSocketHandler}
+//         */
+//
+//        if (amihost) {
+//            Log.d(TAG, "Connected as group owner");
+//            try {
+//                handler = new GroupOwnerSocketHandler(
+//                        ( this).getHandler());
+//                handler.start();
+//            } catch (IOException e) {
+//                Log.d(TAG,
+//                        "Failed to create a server thread - " + e.getMessage());
+//                return;
+//            }
+//        } else {
+//            Log.d(TAG, "Connected as peer");
+//            handler = new ClientSocketHandler(
+//                    ( this).getHandler(),
+//                    ip);
+//            handler.start();
+//        }
+////        chatFragment = new WifiChatFragment();
+////        getFragmentManager().beginTransaction()
+////                .replace(R.id.container_root, chatFragment).commit();
+////        statusTxtView.setVisibility(View.GONE);
+//    }
 
-        if (amihost) {
-            Log.d(TAG, "Connected as group owner");
-            try {
-                handler = new GroupOwnerSocketHandler(
-                        ( this).getHandler());
-                handler.start();
-            } catch (IOException e) {
-                Log.d(TAG,
-                        "Failed to create a server thread - " + e.getMessage());
-                return;
-            }
-        } else {
-            Log.d(TAG, "Connected as peer");
-            handler = new ClientSocketHandler(
-                    ( this).getHandler(),
-                    ip);
-            handler.start();
-        }
-//        chatFragment = new WifiChatFragment();
-//        getFragmentManager().beginTransaction()
-//                .replace(R.id.container_root, chatFragment).commit();
-//        statusTxtView.setVisibility(View.GONE);
-    }
 
 
+    /* --------------------------------------- Location Requests --------------------------------------- */
 
-    //Location listerner gets called when new location is being requested
     private final LocationListener locationListener = new LocationListener() {
         @Override
         public void onLocationChanged(Location location) {
-            // TODO Auto-generated method stub
-
 
             double latitude = location.getLatitude();
             double longitude = location.getLongitude();
@@ -391,15 +391,12 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
             locationGetter.add(0, latitude);
             locationGetter.add(1, longitude);
 
-
-            data2.update("Closest" , 42.042246, -111.355112);
-
             deviceLocations.put("Closest", data2);
 
             //test data
-            data2.update("Closest" , 42.042246, -111.355621);
-
-            deviceLocations.put("Closest", data2);
+            //data2.update("Closest" , 42.042246, -111.355112);
+            //data2.update("Closest" , 42.042246, -111.355621);
+           // deviceLocations.put("Closest", data2);
 
 
             data.update(deviceAddress, latitude, longitude);
@@ -421,10 +418,8 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
                     locationBasedSelect();
                 }
             });
-
             updateUserStatus(latitude, longitude);
 
-            //Log.d("Geo_Location", "Latitude: " + latitude + ", Longitude: " + longitude);
         }
 
         @Override
@@ -446,48 +441,50 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
         }
     };
 
-    //App permission asks user to use location feature.
+
+
+//    //App permission asks user to use location feature.
     public static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
-
-    public boolean checkLocationPermission() {
-        if (ContextCompat.checkSelfPermission(this,
-                Manifest.permission. ACCESS_FINE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED) {
-
-            // Should we show an explanation?
-            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
-                    Manifest.permission. ACCESS_FINE_LOCATION)) {
-
-                // Show an explanation to the user *asynchronously* -- don't block
-                // this thread waiting for the user's response! After the user
-                // sees the explanation, try again to request the permission.
-                new AlertDialog.Builder(this)
-                        .setTitle("")
-                        .setMessage("")
-                        .setPositiveButton("", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                                //Prompt the user once explanation has been shown
-                                ActivityCompat.requestPermissions(P2PCommunicationActivity.this,
-                                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                                        MY_PERMISSIONS_REQUEST_LOCATION);
-                            }
-                        })
-                        .create()
-                        .show();
-
-
-            } else {
-                // No explanation needed, we can request the permission.
-                ActivityCompat.requestPermissions(this,
-                        new String[]{Manifest.permission. ACCESS_FINE_LOCATION},
-                        MY_PERMISSIONS_REQUEST_LOCATION);
-            }
-            return false;
-        } else {
-            return true;
-        }
-    }
+//
+//    public boolean checkLocationPermission() {
+//        if (ContextCompat.checkSelfPermission(this,
+//                Manifest.permission. ACCESS_FINE_LOCATION)
+//                != PackageManager.PERMISSION_GRANTED) {
+//
+//            // Should we show an explanation?
+//            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+//                    Manifest.permission. ACCESS_FINE_LOCATION)) {
+//
+//                // Show an explanation to the user *asynchronously* -- don't block
+//                // this thread waiting for the user's response! After the user
+//                // sees the explanation, try again to request the permission.
+//                new AlertDialog.Builder(this)
+//                        .setTitle("")
+//                        .setMessage("")
+//                        .setPositiveButton("", new DialogInterface.OnClickListener() {
+//                            @Override
+//                            public void onClick(DialogInterface dialogInterface, int i) {
+//                                //Prompt the user once explanation has been shown
+//                                ActivityCompat.requestPermissions(P2PCommunicationActivity.this,
+//                                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+//                                        MY_PERMISSIONS_REQUEST_LOCATION);
+//                            }
+//                        })
+//                        .create()
+//                        .show();
+//
+//
+//            } else {
+//                // No explanation needed, we can request the permission.
+//                ActivityCompat.requestPermissions(this,
+//                        new String[]{Manifest.permission. ACCESS_FINE_LOCATION},
+//                        MY_PERMISSIONS_REQUEST_LOCATION);
+//            }
+//            return false;
+//        } else {
+//            return true;
+//        }
+//    }
 
     private void updateUserStatus(double latitude, double longitude){
 
@@ -504,15 +501,11 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
         double value = -1;
         double angle;
 
-       // Log.d(TAG, "Called");
         for(java.util.Map.Entry<String, Locations> entry : deviceLocations.entrySet()){
             String k = entry.getKey();
             Locations v = entry.getValue();
 
             angle = Direction.angleBetweenThreePoints(v.getPreviousLatitude(), v.getPreviousLongitude(), v.getCurrentLatitude(), v.getCurrentLongitude(), 42.042246, -111.355621);
-
-            //Test
-            Log.d(TAG, "ARRAY: " + entry.getKey() + " LOCATIONS " + v.getPreviousLatitude() + ", " + v.getPreviousLongitude() + ", " + v.getCurrentLatitude() + ", " + v.getCurrentLongitude() + "ANGLE ::: " + angle);
 
             if(value == -1){
                 key = k;
@@ -522,17 +515,45 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
                 value = angle;
             }
         }
+        Toast.makeText(this, "Closest to North: " + key + "\n", Toast.LENGTH_SHORT).show();
+    }
 
+    private void isLocationEnabled() {
 
-
-        //Log.d(TAG, key);
-        Toast toast = Toast.makeText(this, "Closest to North: " + key + "\n", Toast.LENGTH_SHORT);
-        toast.show();
+        if(!locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)){
+            AlertDialog.Builder alertDialog=new AlertDialog.Builder(this);
+            alertDialog.setTitle("Enable Location");
+            alertDialog.setMessage("Your locations setting is not enabled. Please enabled it in settings menu.");
+            alertDialog.setPositiveButton("Location Settings", new DialogInterface.OnClickListener(){
+                public void onClick(DialogInterface dialog, int which){
+                    Intent intent=new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                    startActivity(intent);
+                }
+            });
+            alertDialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener(){
+                public void onClick(DialogInterface dialog, int which){
+                    dialog.cancel();
+                }
+            });
+            AlertDialog alert=alertDialog.create();
+            alert.show();
+        }
+        else{
+            AlertDialog.Builder alertDialog=new AlertDialog.Builder(this);
+            alertDialog.setTitle("Confirm Location");
+            alertDialog.setMessage("Your Location is enabled, please enjoy");
+            alertDialog.setNegativeButton("Back to interface",new DialogInterface.OnClickListener(){
+                public void onClick(DialogInterface dialog, int which){
+                    dialog.cancel();
+                }
+            });
+            AlertDialog alert=alertDialog.create();
+            alert.show();
+        }
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode,
-                                           String permissions[], int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
         switch (requestCode) {
             case MY_PERMISSIONS_REQUEST_LOCATION: {
                 // If request is cancelled, the result arrays are empty.
@@ -544,9 +565,6 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
                     if (ContextCompat.checkSelfPermission(this,
                             Manifest.permission.ACCESS_FINE_LOCATION)
                             == PackageManager.PERMISSION_GRANTED) {
-
-                        //Request location updates:
-                       // locationManager.requestLocationUpdates(locationManager.GPS_PROVIDER, 30000, 0, locationListener);
                     }
 
                 } else {
@@ -559,10 +577,6 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
             }
         }
 
-
-
     }
-
-
 
 }

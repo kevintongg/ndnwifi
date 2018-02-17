@@ -1,17 +1,22 @@
 package no.bouvet.p2pcommunication;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.Inet4Address;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.NetworkInterface;
+import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
 import java.net.UnknownHostException;
@@ -21,13 +26,22 @@ import java.util.Date;
 import java.util.Enumeration;
 import java.util.Locale;
 
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.bluetooth.BluetoothAdapter;
+import android.content.Intent;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.net.wifi.p2p.WifiP2pDevice;
 import android.net.wifi.p2p.WifiP2pInfo;
 import android.os.Environment;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v4.app.NotificationCompat;
+import android.support.v7.app.AppCompatActivity;
+
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -35,10 +49,6 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import org.w3c.dom.Node;
-
-import static no.bouvet.p2pcommunication.fragment.DiscoveryAndConnectionFragment.clickedDeviceIp;
 
 
 public class Client extends AppCompatActivity {
@@ -48,9 +58,9 @@ public class Client extends AppCompatActivity {
     public static WifiP2pInfo p2pInfo;
     ArrayList<Node> listNote;
 
-    public String ip="";
-    String textAddress;
+    String textAddress,filePath;
     LinearLayout loginPanel, chatPanel;
+    private static final int MY_INTENT_CLICK = 302;
 
     EditText editTextUserName, editTextAddress;
     Button buttonConnect,sendFile,getFile;
@@ -59,12 +69,14 @@ public class Client extends AppCompatActivity {
     EditText editTextSay;
     Button buttonSend;
     Button buttonDisconnect;
+    ServerSocket serverSocket;
+
+    public static final int NOTIFICATION_ID = 1;
+    ServerSocketThread serverSocketThread = null;
 
     String msgLog = "";
-    String getIp ;
 
     ChatClientThread chatClientThread = null;
-    ClientRxThread clientRxThread = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,11 +85,11 @@ public class Client extends AppCompatActivity {
 
         loginPanel = (LinearLayout)findViewById(R.id.loginpanel);
         chatPanel = (LinearLayout)findViewById(R.id.chatpanel);
-        infoIp = (TextView) findViewById(R.id.infoip);
-//        sendFile = (Button) findViewById(R.id.send_file);
-//        getFile = (Button) findViewById((R.id.get_file)) ;
+//        infoIp = (TextView) findViewById(R.id.infoip);
+        sendFile = (Button) findViewById(R.id.send_file);
+        getFile = (Button) findViewById((R.id.get_file)) ;
 
-        infoIp.setText(getIpAddress());
+//        infoIp.setText(getIpAddress());
 
         editTextUserName = (EditText) findViewById(R.id.username);
 
@@ -96,6 +108,7 @@ public class Client extends AppCompatActivity {
         for(int i=0; i<listNote.size(); i++){
             editTextAddress.append(listNote.get(i).toString());
         }
+        Log.d("Client", editTextAddress.getText().toString());
 
 
 
@@ -111,17 +124,30 @@ public class Client extends AppCompatActivity {
 
         buttonSend.setOnClickListener(buttonSendOnClickListener);
 
-//        getFile.setOnClickListener(new OnClickListener(){
-//
-//            @Override
-//            public void onClick(View v) {
-//
-//                Log.d(editTextAddress.getText().toString(),textAddress);
-//                clientRxThread = new ClientRxThread( editTextAddress.getText().toString(),SocketServerPORT);
-//                clientRxThread.start();
-//
-//            }});
+        getFile.setOnClickListener(new OnClickListener(){
 
+            @Override
+            public void onClick(View v) {
+
+                ClientRxThread clientRxThread = new ClientRxThread( editTextAddress.getText().toString(), SocketServerPORT);
+                clientRxThread.start();
+
+            }});
+
+        sendFile.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                serverSocketThread = new ServerSocketThread();
+                serverSocketThread.start();
+
+                Intent intent = new Intent();
+                intent.setType("*/*");
+                intent.setAction(Intent.ACTION_GET_CONTENT);
+
+                startActivityForResult(Intent.createChooser(intent, "Select File"), MY_INTENT_CLICK);
+
+            }
+        });
 
     }
 
@@ -149,6 +175,7 @@ public class Client extends AppCompatActivity {
 
         } catch (FileNotFoundException e) {
             e.printStackTrace();
+
         } catch (IOException e) {
             e.printStackTrace();
         } finally{
@@ -176,7 +203,148 @@ public class Client extends AppCompatActivity {
 
 
 
+// send file
 
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (resultCode == RESULT_OK) {
+            if (requestCode == MY_INTENT_CLICK) {
+                if (null == data) return;
+
+
+                Uri selectedImageUri = data.getData();
+
+                //MEDIA GALLERY
+                filePath = ImageFilePath.getPath(getApplicationContext(), selectedImageUri);
+
+                //txta.setText("File Path : \n"+selectedImagePath);
+            }
+        }
+    }
+
+
+    public class ServerSocketThread extends Thread {
+
+        @Override
+        public void run() {
+            Socket socket = null;
+
+            try {
+//            serverSocket = new ServerSocket();
+//            serverSocket.setReuseAddress(true);
+                serverSocket = new ServerSocket(SocketServerPORT);
+//            serverSocket.bind(new InetSocketAddress(SocketServerPORT)); // <-- now bind it
+
+
+
+//                Server.this.runOnUiThread(new Runnable() {
+//
+//                    @Override
+//                    public void run() {
+//                        infoPort.setText("I'm waiting here: "
+//                                + serverSocket.getLocalPort());
+//                    }});
+
+                while (true) {
+                    socket = serverSocket.accept();
+                    FileTxThread fileTxThread = new FileTxThread(socket);
+                    fileTxThread.start();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+                final String eMsg = "Something wrong: " + e.getMessage() + " Please Try Again";
+                Client.this.runOnUiThread(new Runnable() {
+
+                    @Override
+                    public void run() {
+                        Toast toast = Toast.makeText(Client.this, eMsg, Toast.LENGTH_LONG);
+                        toast.setGravity(Gravity.CENTER, 0, 0);
+                        toast.show();
+
+
+                    }});
+            } finally {
+                if (socket != null) {
+                    try {
+                        socket.close();
+                    } catch (IOException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
+
+    }
+
+    public class FileTxThread extends Thread {
+        Socket socket;
+
+        FileTxThread(Socket socket) {
+
+            this.socket = socket;
+        }
+
+        @Override
+        public void run() {
+            File file = new File(filePath);
+
+
+            byte[] bytes = new byte[(int) file.length()];
+            BufferedInputStream bis;
+            try {
+                bis = new BufferedInputStream(new FileInputStream(file));
+                bis.read(bytes, 0, bytes.length);
+
+                ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
+                oos.writeObject(bytes);
+                oos.flush();
+
+                socket.close();
+
+//                final String sentMsg = "File sent to: " + socket.getInetAddress();
+                final String sentMsg = "Sending...";
+
+                Client.this.runOnUiThread(new Runnable() {
+
+                    @Override
+                    public void run() {
+                        Toast.makeText(Client.this,
+                                sentMsg,
+                                Toast.LENGTH_LONG).show();
+                    }
+                });
+
+            } catch (FileNotFoundException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            } catch (IOException e) {
+
+                e.printStackTrace();
+                final String eMsg = "Something wrong: " + e.getMessage() + " Please Try Again";
+                Client.this.runOnUiThread(new Runnable() {
+
+                    @Override
+                    public void run() {
+                        Toast toast = Toast.makeText(Client.this, eMsg, Toast.LENGTH_LONG);
+                        toast.setGravity(Gravity.CENTER, 0, 0);
+                        toast.show();
+
+
+                    }});
+
+            } finally {
+                try {
+                    socket.close();
+                } catch (IOException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+            }
+
+        }
+    }
 
 
 
@@ -200,7 +368,7 @@ public class Client extends AppCompatActivity {
 
             try {
                 socket = new Socket(textAddress, dstPort);
-                Log.d("Server","120");
+                Log.d("Client",textAddress);
                 SimpleDateFormat formatter = new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss", Locale.US);
                 Date now = new Date();
                 String fileName = formatter.format(now) + ".jpg";
@@ -218,8 +386,18 @@ public class Client extends AppCompatActivity {
                     fos = new FileOutputStream(file);
                     fos.write(bytes);
                 } catch (ClassNotFoundException e) {
-                    // TODO Auto-generated catch block
                     e.printStackTrace();
+                    final String eMsg = "Something wrong: " + e.getMessage() + " Please Try Again";
+                    Client.this.runOnUiThread(new Runnable() {
+
+                        @Override
+                        public void run() {
+                            Toast toast = Toast.makeText(Client.this, eMsg, Toast.LENGTH_LONG);
+                            toast.setGravity(Gravity.CENTER, 0, 0);
+                            toast.show();
+
+
+                        }});
                 } finally {
                     if(fos!=null){
                         fos.close();
@@ -228,6 +406,33 @@ public class Client extends AppCompatActivity {
                 }
 
                 socket.close();
+
+                NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext());
+                builder.setSmallIcon(R.drawable.chat_bubble_received);
+                Intent intent=new Intent();
+                intent.setAction(Intent.ACTION_VIEW);
+                intent.setDataAndType(Uri.fromFile(file), "image/*");
+
+
+
+                PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, intent, 0);
+                builder.setContentIntent(pendingIntent);
+
+                builder.setLargeIcon(BitmapFactory.decodeResource(getResources(), R.drawable.ic_launcher));
+
+                builder.setContentTitle("You Got An Image");
+
+                builder.setContentText("Image Arrived");
+
+                builder.setSubText("Tap to view image");
+                builder.setDefaults(Notification.DEFAULT_ALL);
+                builder.setAutoCancel(true);
+
+                NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+
+                notificationManager.notify(NOTIFICATION_ID, builder.build());
+
+
 
                 Client.this.runOnUiThread(new Runnable() {
 
@@ -242,14 +447,14 @@ public class Client extends AppCompatActivity {
 
                 e.printStackTrace();
 
-                final String eMsg = "Something wrong: " + e.getMessage();
+                final String eMsg = "Something wrong: " + e.getMessage() + " Please Try Again";
                 Client.this.runOnUiThread(new Runnable() {
 
                     @Override
                     public void run() {
-                        Toast.makeText(Client.this,
-                                eMsg,
-                                Toast.LENGTH_LONG).show();
+                        Toast toast = Toast.makeText(Client.this, eMsg, Toast.LENGTH_LONG);
+                        toast.setGravity(Gravity.CENTER, 0, 0);
+                        toast.show();
                     }});
 
             } finally {
@@ -264,7 +469,7 @@ public class Client extends AppCompatActivity {
             }
         }
     }
-//end image transfer
+//end image transfer-------------------------------------------------------------------------------------------------------
 
 
 
@@ -329,6 +534,21 @@ public class Client extends AppCompatActivity {
 
     };
 
+//    @Override
+//    protected void onDestroy() {
+//        super.onDestroy();
+//
+//        if (serverSocket != null) {
+//            try {
+//                serverSocket.close();
+//            } catch (IOException e) {
+//                // TODO Auto-generated catch block
+//                e.printStackTrace();
+//            }
+//        }
+//    }
+
+
     private class ChatClientThread extends Thread {
 
         String name;
@@ -392,15 +612,17 @@ public class Client extends AppCompatActivity {
                 });
             } catch (IOException e) {
                 e.printStackTrace();
-                final String eString = e.toString();
+                final String eMsg = "Something wrong: " + e.getMessage() + " Please Try Again";
                 Client.this.runOnUiThread(new Runnable() {
 
                     @Override
                     public void run() {
-                        Toast.makeText(Client.this, eString, Toast.LENGTH_LONG).show();
-                    }
+                        Toast toast = Toast.makeText(Client.this, eMsg, Toast.LENGTH_LONG);
+                        toast.setGravity(Gravity.CENTER, 0, 0);
+                        toast.show();
 
-                });
+
+                    }});
             } finally {
                 if (socket != null) {
                     try {
@@ -454,36 +676,36 @@ public class Client extends AppCompatActivity {
 
 
     // get its own ip address
-    private String getIpAddress() {
-        String ip = "";
-        try {
-            Enumeration<NetworkInterface> enumNetworkInterfaces = NetworkInterface
-                    .getNetworkInterfaces();
-            while (enumNetworkInterfaces.hasMoreElements()) {
-                NetworkInterface networkInterface = enumNetworkInterfaces
-                        .nextElement();
-                Enumeration<InetAddress> enumInetAddress = networkInterface
-                        .getInetAddresses();
-                while (enumInetAddress.hasMoreElements()) {
-                    InetAddress inetAddress = enumInetAddress.nextElement();
-
-                    if (inetAddress.isSiteLocalAddress()) {
-                        BluetoothAdapter myDevice = BluetoothAdapter.getDefaultAdapter();
-                        String deviceName = myDevice.getName();
-                        ip += deviceName + " - ip address: "
-                                + inetAddress.getHostAddress() + "\n";
-                    }
-
-                }
-
-            }
-
-        } catch (SocketException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-            ip += "Something Wrong! " + e.toString() + "\n";
-        }
-
-        return ip;
-    }
+//    private String getIpAddress() {
+//        String ip = "";
+//        try {
+//            Enumeration<NetworkInterface> enumNetworkInterfaces = NetworkInterface
+//                    .getNetworkInterfaces();
+//            while (enumNetworkInterfaces.hasMoreElements()) {
+//                NetworkInterface networkInterface = enumNetworkInterfaces
+//                        .nextElement();
+//                Enumeration<InetAddress> enumInetAddress = networkInterface
+//                        .getInetAddresses();
+//                while (enumInetAddress.hasMoreElements()) {
+//                    InetAddress inetAddress = enumInetAddress.nextElement();
+//
+//                    if (inetAddress.isSiteLocalAddress()) {
+//                        BluetoothAdapter myDevice = BluetoothAdapter.getDefaultAdapter();
+//                        String deviceName = myDevice.getName();
+//                        ip += deviceName + " - ip address: "
+//                                + inetAddress.getHostAddress() + "\n";
+//                    }
+//
+//                }
+//
+//            }
+//
+//        } catch (SocketException e) {
+//            // TODO Auto-generated catch block
+//            e.printStackTrace();
+//            ip += "Something Wrong! " + e.toString() + "\n";
+//        }
+//
+//        return ip;
+//    }
 }

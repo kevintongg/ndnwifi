@@ -59,4 +59,3 @@
         android:layout_below="@+id/server_ip"
         android:layout_above="@+id/sent_button" />
 </RelativeLayout>
-
