@@ -168,14 +168,14 @@ public class DiscoveryAndConnectionFragment extends ListFragment implements Disc
                                         Intent intent2 = new Intent(getActivity(), Client.class);
                                         startActivity(intent2);
                                         break;
-                                    case 2:
-                                        Intent intent3 = new Intent(getActivity(), FileServer.class);
-                                        startActivity(intent3);
-                                        break;
-                                    case 3:
-                                        Intent intent4 = new Intent(getActivity(), FileClient.class);
-                                        startActivity(intent4);
-                                        break;
+//                                     case 2:
+//                                         Intent intent3 = new Intent(getActivity(), FileServer.class);
+//                                         startActivity(intent3);
+//                                         break;
+//                                     case 3:
+//                                         Intent intent4 = new Intent(getActivity(), FileClient.class);
+//                                         startActivity(intent4);
+//                                         break;
                                 }
                             }
                         });
