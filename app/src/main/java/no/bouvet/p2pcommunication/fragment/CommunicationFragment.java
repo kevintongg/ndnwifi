@@ -10,9 +10,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
-
-import butterknife.ButterKnife;
 import butterknife.BindView;
+import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.Unbinder;
 import no.bouvet.p2pcommunication.R;
@@ -26,109 +25,117 @@ import no.bouvet.p2pcommunication.multicast.MulticastMessageReceiverService;
 import no.bouvet.p2pcommunication.multicast.SendMulticastMessageAsyncTask;
 import no.bouvet.p2pcommunication.util.UserInputHandler;
 
-public class CommunicationFragment extends ListFragment implements MulticastMessageReceivedListener, MulticastMessageSentListener, UserInputHandler {
+public class CommunicationFragment extends ListFragment implements MulticastMessageReceivedListener,
+    MulticastMessageSentListener, UserInputHandler {
 
-    public static final String TAG = CommunicationFragment.class.getSimpleName();
-    private boolean viewsInjected;
-    private Intent multicastReceiverServiceIntent;
-    private ChatListAdapter chatListAdapter;
-    Unbinder unbinder;
+  public static final String TAG = CommunicationFragment.class.getSimpleName();
+  Unbinder unbinder;
+  @BindView(R.id.user_input_edit_text)
+  EditText userInputEditText;
+  private boolean viewsInjected;
+  private Intent multicastReceiverServiceIntent;
+  private ChatListAdapter chatListAdapter;
 
-    @BindView(R.id.user_input_edit_text) EditText userInputEditText;
+  public static Fragment newInstance() {
+    CommunicationFragment communicationFragment = new CommunicationFragment();
+    communicationFragment.setArguments(getFragmentArguments());
+    return communicationFragment;
+  }
 
-    public static Fragment newInstance() {
-        CommunicationFragment communicationFragment = new CommunicationFragment();
-        communicationFragment.setArguments(getFragmentArguments());
-        return communicationFragment;
+  private static Bundle getFragmentArguments() {
+    Bundle fragmentArguments = new Bundle();
+    fragmentArguments
+        .putString(P2pCommunicationFragmentPagerAdapter.FRAGMENT_TITLE, "MULTICAST CHAT");
+    return fragmentArguments;
+  }
+
+  @Override
+  public View onCreateView(LayoutInflater inflater, ViewGroup container,
+      Bundle savedInstanceState) {
+    View communicationFragmentView = inflater.inflate(R.layout.communication_fragment, null);
+    unbinder = ButterKnife.bind(this, communicationFragmentView);
+    viewsInjected = true;
+    return communicationFragmentView;
+  }
+
+  @Override
+  public void onDestroyView() {
+    super.onDestroyView();
+    unbinder.unbind();
+  }
+
+  @Override
+  public void onActivityCreated(Bundle savedInstanceState) {
+    super.onActivityCreated(savedInstanceState);
+    chatListAdapter = new ChatListAdapter(getActivity(), R.layout.communication_fragment_list_row);
+    setListAdapter(chatListAdapter);
+  }
+
+  @OnClick(R.id.send_button)
+  public void sendMulticastMessage() {
+    new SendMulticastMessageAsyncTask(this, this).execute();
+  }
+
+  public void startReceivingMulticastMessages() {
+    if (!MulticastMessageReceiverService.isRunning) {
+      multicastReceiverServiceIntent = createMulticastReceiverServiceIntent();
+      getActivity().startService(multicastReceiverServiceIntent);
+      Log.i(TAG, getString(R.string.multicast_receiver_service_started));
     }
+  }
 
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View communicationFragmentView = inflater.inflate(R.layout.communication_fragment, null);
-        unbinder = ButterKnife.bind(this, communicationFragmentView);
-        viewsInjected = true;
-        return communicationFragmentView;
+  public void stopReceivingMulticastMessages() {
+    if (MulticastMessageReceiverService.isRunning) {
+      getActivity().stopService(multicastReceiverServiceIntent);
+      Log.i(TAG, getString(R.string.multicast_receiver_service_stopped));
     }
+  }
 
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-       unbinder.unbind();
-    }
+  @Override
+  public void onMulticastMessageReceived(MulticastMessage multicastMessage) {
+    addMulticastMessageToChatList(multicastMessage);
+  }
 
-    @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        chatListAdapter = new ChatListAdapter(getActivity(), R.layout.communication_fragment_list_row);
-        setListAdapter(chatListAdapter);
-    }
+  @Override
+  public void onCouldNotSendMessage() {
+    MulticastMessage multicastMessage = new MulticastMessage(
+        getString(R.string.message_not_multicasted), "", true);
+    addMulticastMessageToChatList(multicastMessage);
+  }
 
-    @OnClick(R.id.send_button)
-    public void sendMulticastMessage() {
-        new SendMulticastMessageAsyncTask(this, this).execute();
-    }
+  @Override
+  public String getMessageToBeSentFromUserInput() {
+    return userInputEditText.getText().toString();
+  }
 
-    public void startReceivingMulticastMessages() {
-        if (!MulticastMessageReceiverService.isRunning) {
-            multicastReceiverServiceIntent = createMulticastReceiverServiceIntent();
-            getActivity().startService(multicastReceiverServiceIntent);
-            Log.i(TAG, getString(R.string.multicast_receiver_service_started));
-        }
-    }
+  @Override
+  public void clearUserInput() {
+    userInputEditText.setText("");
+  }
 
-    public void stopReceivingMulticastMessages() {
-        if (MulticastMessageReceiverService.isRunning) {
-            getActivity().stopService(multicastReceiverServiceIntent);
-            Log.i(TAG, getString(R.string.multicast_receiver_service_stopped));
-        }
+  public void reset() {
+    if (viewsInjected) {
+      chatListAdapter.clear();
+      chatListAdapter.notifyDataSetChanged();
+      stopReceivingMulticastMessages();
     }
+  }
 
-    @Override
-    public void onMulticastMessageReceived(MulticastMessage multicastMessage) {
-        addMulticastMessageToChatList(multicastMessage);
-    }
+  private Intent createMulticastReceiverServiceIntent() {
+    Intent multicastReceiverServiceIntent = new Intent(getActivity(),
+        MulticastMessageReceiverService.class);
+    multicastReceiverServiceIntent
+        .setAction(MulticastMessageReceiverService.ACTION_LISTEN_FOR_MULTICAST);
+    MulticastMessageReceivedHandler multicastMessageReceivedHandler = new MulticastMessageReceivedHandler(
+        this);
+    multicastReceiverServiceIntent.putExtra(MulticastMessageReceiverService.EXTRA_HANDLER_MESSENGER,
+        new Messenger(multicastMessageReceivedHandler));
+    return multicastReceiverServiceIntent;
+  }
 
-    @Override
-    public void onCouldNotSendMessage() {
-        MulticastMessage multicastMessage = new MulticastMessage(getString(R.string.message_not_multicasted), "", true);
-        addMulticastMessageToChatList(multicastMessage);
-    }
-
-    @Override
-    public String getMessageToBeSentFromUserInput() {
-        return userInputEditText.getText().toString();
-    }
-
-    @Override
-    public void clearUserInput() {
-        userInputEditText.setText("");
-    }
-
-    public void reset() {
-        if(viewsInjected) {
-            chatListAdapter.clear();
-            chatListAdapter.notifyDataSetChanged();
-            stopReceivingMulticastMessages();
-        }
-    }
-
-    private static Bundle getFragmentArguments() {
-        Bundle fragmentArguments = new Bundle();
-        fragmentArguments.putString(P2pCommunicationFragmentPagerAdapter.FRAGMENT_TITLE, "MULTICAST CHAT");
-        return fragmentArguments;
-    }
-
-    private Intent createMulticastReceiverServiceIntent() {
-        Intent multicastReceiverServiceIntent = new Intent(getActivity(), MulticastMessageReceiverService.class);
-        multicastReceiverServiceIntent.setAction(MulticastMessageReceiverService.ACTION_LISTEN_FOR_MULTICAST);
-        MulticastMessageReceivedHandler multicastMessageReceivedHandler = new MulticastMessageReceivedHandler(this);
-        multicastReceiverServiceIntent.putExtra(MulticastMessageReceiverService.EXTRA_HANDLER_MESSENGER, new Messenger(multicastMessageReceivedHandler));
-        return multicastReceiverServiceIntent;
-    }
-
-    private void addMulticastMessageToChatList(MulticastMessage multicastMessage) {
-        chatListAdapter.add(multicastMessage);
-        chatListAdapter.notifyDataSetChanged();
-        getListView().setSelection(chatListAdapter.getCount() - 1);
-    }
+  private void addMulticastMessageToChatList(MulticastMessage multicastMessage) {
+    chatListAdapter.add(multicastMessage);
+    chatListAdapter.notifyDataSetChanged();
+    getListView().setSelection(chatListAdapter.getCount() - 1);
+  }
 }

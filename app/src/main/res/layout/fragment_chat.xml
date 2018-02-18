@@ -1,49 +1,49 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  android:layout_width="match_parent"
+  android:layout_height="match_parent"
+  android:orientation="vertical">
+
+  <ListView
+    android:id="@android:id/list"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical" >
+    android:layout_marginBottom="50dip"
+    android:transcriptMode="alwaysScroll">
 
-    <ListView
-        android:id="@android:id/list"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginBottom="50dip"
-        android:transcriptMode="alwaysScroll" >
+    <!-- Preview: listitem=@android:layout/simple_list_item_1 -->
 
-        <!-- Preview: listitem=@android:layout/simple_list_item_1 -->
+  </ListView>
 
-    </ListView>
+  <LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="50dip"
+    android:layout_gravity="bottom">
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="50dip"
-        android:layout_gravity="bottom" >
+    <EditText
+      android:id="@+id/txtChatLine"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_weight="0.90"
+      android:layout_gravity="bottom"
+      android:focusableInTouchMode="true"
+      android:hint="@string/txt_hint"
+      android:visibility="visible">
+    </EditText>
 
-        <EditText
-            android:id="@+id/txtChatLine"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom"
-            android:layout_weight="0.90"
-            android:focusableInTouchMode="true"
-            android:hint="@string/txt_hint"
-            android:visibility="visible" >
-        </EditText>
-
-      <Button
-        android:id="@+id/upload_button"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_weight="0.90"
-        android:text="@string/btn_upload"/>
-      <Button
-        android:id="@+id/button1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_weight="0.10"
-        android:layout_gravity="bottom|end"
-        android:text="@string/btn_send"/>
-    </LinearLayout>
+    <Button
+      android:id="@+id/upload_button"
+      android:layout_width="0dp"
+      android:layout_height="wrap_content"
+      android:layout_weight="0.90"
+      android:text="@string/btn_upload"/>
+    <Button
+      android:id="@+id/button1"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_weight="0.10"
+      android:layout_gravity="bottom|end"
+      android:text="@string/btn_send"/>
+  </LinearLayout>
 
 </FrameLayout>

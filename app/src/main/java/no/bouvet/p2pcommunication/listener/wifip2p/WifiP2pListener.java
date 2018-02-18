@@ -5,30 +5,30 @@ import android.net.wifi.p2p.WifiP2pInfo;
 
 public interface WifiP2pListener {
 
-    void onWifiP2pStateEnabled();
+  void onWifiP2pStateEnabled();
 
-    void onWifiP2pStateDisabled();
+  void onWifiP2pStateDisabled();
 
-    void onStartPeerDiscovery();
+  void onStartPeerDiscovery();
 
-    void onStopPeerDiscovery();
+  void onStopPeerDiscovery();
 
-    void onRequestPeers();
+  void onRequestPeers();
 
-    void onConnect(WifiP2pDevice wifiP2pDevice);
+  void onConnect(WifiP2pDevice wifiP2pDevice);
 
-    void onCancelConnect();
+  void onCancelConnect();
 
-    void onDisconnect();
+  void onDisconnect();
 
-    void onIsDisconnected();
+  void onIsDisconnected();
 
-    void onCreateGroup();
+  void onCreateGroup();
 
-    void onRequestConnectionInfo();
+  void onRequestConnectionInfo();
 
-    void onThisDeviceChanged(WifiP2pDevice wifiP2pDevice);
+  void onThisDeviceChanged(WifiP2pDevice wifiP2pDevice);
 
-    void onGroupHostInfoChanged(WifiP2pInfo wifiP2pInfo);
+  void onGroupHostInfoChanged(WifiP2pInfo wifiP2pInfo);
 
 }
