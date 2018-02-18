@@ -50,14 +50,14 @@
 
         </activity>
 
-        <activity
+<!--         <activity
             android:name=".FileClient"
             android:label="@string/title_file_client" />
         <activity
             android:name=".FileServer"
             android:label="@string/title_file_server">
 
-        </activity>
+        </activity> -->
 
 
     </application>
