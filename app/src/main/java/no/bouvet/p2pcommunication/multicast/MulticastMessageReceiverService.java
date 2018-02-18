@@ -62,14 +62,14 @@ public class MulticastMessageReceiverService extends IntentService {
                     String test = getFirstLetter(datagramPacket);
 
 
-                    //In order to determine what type of data packet was sent every chat message starts with ':', this condition checks for this and determines whether the packet is
-                    //being sent for location or chat.
+                    /* In order to determine what type of data packet was sent every chat message starts with ':', this condition checks for this and determines whether the packet is
+                    being sent for location or chat. */
+
                     if(!(test.contains(":"))) {
                         othersLocation = byteToDouble(bb);
                         String ip = getSenderName(datagramPacket);
 
                        if(!ip.equals(NetworkUtil.getMyWifiP2pIpAddress())) {
-                           // Log.d(TAG, "This ip " + NetworkUtil.getMyWifiP2pIpAddress() +  " " + ip);
 
                             if (deviceLocations.containsKey(ip)){
 
@@ -79,7 +79,9 @@ public class MulticastMessageReceiverService extends IntentService {
 
                                 Locations data = new Locations(ip, othersLocation[0], othersLocation[1]);
                                 data.update(ip, othersLocation[0], othersLocation[1]);
-                                deviceLocations.put(getSenderName(datagramPacket), data);
+                                deviceLocations.put(ip, data);
+
+                                deviceLocations.get(ip).setDistance(othersLocation[0], othersLocation[1], deviceLocations.get(deviceAddress).getCurrentLatitude(), deviceLocations.get(deviceAddress).getCurrentLongitude());
 
                             }
 

@@ -12,6 +12,7 @@ public class Locations {
     double[] locations = new double[6];
     double angle =0;
     String heading = "";
+    double distance = 0;
 
     public Locations(String device, double latitude, double longitude){
         this.deviceAdress = device;
@@ -90,6 +91,11 @@ public class Locations {
         mLocation[1] = getCurrentLongitude();
 
         return mLocation;
+    }
+
+    public void setDistance(double oLat, double oLong, double uLat, double uLong){
+       this.distance =  Direction.getDistance(oLat, oLong, uLat, uLong);
+
     }
 
     public String getPrevious(){

@@ -126,7 +126,7 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
 
         if (locationManager != null && deviceAddress != null) {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-                Log.d(TAG, "Working...");
+                Log.d(TAG, "Location Working...");
                 locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 160000, 0, locationListener);
                 deviceLocations.put(deviceAddress, new Locations(deviceAddress));
             }
