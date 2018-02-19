@@ -1,6 +1,5 @@
 package no.bouvet.p2pcommunication.multicast;
 
-import static no.bouvet.p2pcommunication.P2PCommunicationActivity.deviceAddress;
 import static no.bouvet.p2pcommunication.P2PCommunicationActivity.deviceLocations;
 
 import android.app.IntentService;
@@ -75,8 +74,8 @@ public class MulticastMessageReceiverService extends IntentService {
                 deviceLocations.put(ip, data);
 
                 deviceLocations.get(ip).setDistance(othersLocation[0], othersLocation[1],
-                    deviceLocations.get(deviceAddress).getCurrentLatitude(),
-                    deviceLocations.get(deviceAddress).getCurrentLongitude());
+                    deviceLocations.get("Me").getCurrentLatitude(),
+                    deviceLocations.get("Me").getCurrentLongitude());
 
               }
 

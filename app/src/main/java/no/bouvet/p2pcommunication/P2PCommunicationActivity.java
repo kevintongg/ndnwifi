@@ -7,7 +7,6 @@ import android.app.AlertDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.location.Location;
@@ -23,7 +22,6 @@ import android.net.wifi.p2p.WifiP2pManager.PeerListListener;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.provider.Settings;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
@@ -54,27 +52,31 @@ import no.bouvet.p2pcommunication.locationSocket.LocationAsyncTask;
 import no.bouvet.p2pcommunication.locationSocket.Locations;
 import no.bouvet.p2pcommunication.wifip2p.P2pCommunicationWifiP2pManager;
 
-public class P2PCommunicationActivity extends FragmentActivity implements WifiP2pListener,
-    MulticastListener {
+import static java.lang.Double.NaN;
+
+public class P2PCommunicationActivity extends FragmentActivity implements WifiP2pListener, MulticastListener {
 
   public static final String TAG = P2PCommunicationActivity.class.getSimpleName();
   public static final int SERVER_PORT = 4545;
   public static final int MESSAGE_READ = 0x400 + 1;
   public static final int MY_HANDLE = 0x400 + 2;
-  //    //App permission asks user to use location feature.
-  public static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
   final static double TEST_DESTINATION_LAT = 42.042246;
   final static double TEST_DESTINATION_LONG = -118.665396;
   public static P2pCommunicationWifiP2pManager p2pCommunicationWifiP2pManager;
   public static ArrayList<Double> locationGetter = new ArrayList<>();
   public static HashMap<String, Locations> deviceLocations = new HashMap<>();
-  public static String deviceAddress;
+
+  public String deviceAddress;
   public static boolean isChatOn = false;
   public static WifiP2pDevice currentDevice;
   public static String devicesInChat = "";
   Locations data;
+
   //test data
   Locations data2 = new Locations("Closest", 0, 0);
+
+
+
   @BindView(R.id.view_pager)
   ViewPager viewPager;
   @BindView(R.id.my_device_name_text_view)
@@ -83,68 +85,12 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
   TextView myDeviceStatusTextView;
   @BindView(R.id.personal_location)
   TextView personalLocation;
-  private final LocationListener locationListener = new LocationListener() {
-    @Override
-    public void onLocationChanged(Location location) {
-
-      double latitude = location.getLatitude();
-      double longitude = location.getLongitude();
-
-      locationGetter.add(0, latitude);
-      locationGetter.add(1, longitude);
-
-      deviceLocations.put("Closest", data2);
-
-      //test data
-      //data2.update("Closest" , 42.042246, -111.355112);
-      //data2.update("Closest" , 42.042246, -111.355621);
-      // deviceLocations.put("Closest", data2);
-
-      data.update(deviceAddress, latitude, longitude);
-      deviceLocations.put(deviceAddress, data);
-
-      Timer t = new Timer();
-      t.schedule(new TimerTask() {
-        public void run() {
-          // write the method name here. which you want to call continuously
-          new LocationAsyncTask().execute();
-        }
-      }, 16000, 16000);
-
-      int secs = 5;
-      DelayHandler.delay(secs, new DelayHandler.DelayCallback() {
-        @Override
-        public void afterDelay() {
-          locationBasedSelect();
-        }
-      });
-      updateUserStatus(latitude, longitude);
-
-    }
-
-    @Override
-    public void onProviderDisabled(String provider) {
-      // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void onProviderEnabled(String provider) {
-      // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void onStatusChanged(String provider, int status, Bundle extras) {
-      // TODO Auto-generated method stub
-
-    }
-  };
   @BindView(R.id.am_i_host_question_text_view)
   TextView amIHostQuestionTextView;
   @BindView(R.id.host_ip_text_view)
   TextView hostIpTextView;
   LocationManager locationManager;
+
   private WifiP2pBroadcastReceiver wifiP2pBroadcastReceiver;
   private P2pCommunicationFragmentPagerAdapter p2pCommunicationFragmentPagerAdapter;
   private boolean wifiP2pEnabled;
@@ -164,31 +110,32 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
     p2pCommunicationWifiP2pManager = new P2pCommunicationWifiP2pManager(getApplicationContext());
     wifiP2pBroadcastReceiver = new WifiP2pBroadcastReceiver(getApplicationContext(), this);
     p2pCommunicationFragmentPagerAdapter = new P2pCommunicationFragmentPagerAdapter(
-        getSupportFragmentManager(), getFragmentList());
+            getSupportFragmentManager(), getFragmentList());
     setViewPager(viewPager, p2pCommunicationFragmentPagerAdapter);
 
     locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+    data = new Locations("Me", 0, 0);
 
     isBluetoothEnabled();
     isStoragePermissionGranted();
 
-    if (locationManager != null && deviceAddress != null) {
+    if (locationManager != null) {
       if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-          == PackageManager.PERMISSION_GRANTED) {
+              == PackageManager.PERMISSION_GRANTED) {
         Log.d(TAG, "Location Working...");
         locationManager
-            .requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 160000, 0, locationListener);
-        deviceLocations.put(deviceAddress, new Locations(deviceAddress));
+                .requestLocationUpdates(LocationManager.GPS_PROVIDER, 30000, 0, locationListener);
+        deviceLocations.put("Me", new Locations("Me"));
       }
     }
-    isLocationEnabled();
+    checkLocationPermission();
   }
 
   @Override
   public void onResume() {
     super.onResume();
     registerReceiver(wifiP2pBroadcastReceiver, createWifiP2pIntentFilter());
-    isLocationEnabled();
+    checkLocationPermission();
 
     if (currentDevice == null) {
       currentDevice = getIntent().getParcelableExtra(WifiP2pManager.EXTRA_WIFI_P2P_DEVICE);
@@ -203,8 +150,8 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
     try {
       PackageManager pm = this.getPackageManager();
       int hasBluetoothPermission = pm.checkPermission(
-          Manifest.permission.BLUETOOTH,
-          this.getPackageName());
+              Manifest.permission.BLUETOOTH,
+              this.getPackageName());
       if (hasBluetoothPermission == PackageManager.PERMISSION_GRANTED) {
         BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         if (bluetoothAdapter != null) {
@@ -222,14 +169,14 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
   public boolean isStoragePermissionGranted() {
     if (Build.VERSION.SDK_INT >= 23) {
       if (checkSelfPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
-          == PackageManager.PERMISSION_GRANTED) {
+              == PackageManager.PERMISSION_GRANTED) {
         Log.v(TAG, "Permission is granted");
         return true;
       } else {
 
         Log.v(TAG, "Permission is revoked");
         ActivityCompat
-            .requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
+                .requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
         return false;
       }
     } else { //permission is automatically granted on sdk<23 upon installation
@@ -260,7 +207,7 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
   public void onStartPeerDiscovery() {
     if (wifiP2pEnabled) {
       DiscoveryStateListener discoveryStateListener = p2pCommunicationFragmentPagerAdapter
-          .getDiscoveryAndConnectionFragment();
+              .getDiscoveryAndConnectionFragment();
       p2pCommunicationWifiP2pManager.startPeerDiscovery(discoveryStateListener);
     } else {
       Toast.makeText(this, R.string.wifi_p2p_disabled_please_enable, Toast.LENGTH_SHORT).show();
@@ -270,23 +217,23 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
   @Override
   public void onStopPeerDiscovery() {
     DiscoveryStateListener discoveryStateListener = p2pCommunicationFragmentPagerAdapter
-        .getDiscoveryAndConnectionFragment();
+            .getDiscoveryAndConnectionFragment();
     p2pCommunicationWifiP2pManager.stopPeerDiscovery(discoveryStateListener);
   }
 
   @Override
   public void onRequestPeers() {
     PeerListListener peerListListener = p2pCommunicationFragmentPagerAdapter
-        .getDiscoveryAndConnectionFragment();
+            .getDiscoveryAndConnectionFragment();
     p2pCommunicationWifiP2pManager.requestPeers(peerListListener);
   }
 
   @Override
   public void onConnect(WifiP2pDevice wifiP2pDevice) {
     InvitationToConnectListener invitationToConnectListener = p2pCommunicationFragmentPagerAdapter
-        .getDiscoveryAndConnectionFragment();
+            .getDiscoveryAndConnectionFragment();
     p2pCommunicationWifiP2pManager.connect(wifiP2pDevice, invitationToConnectListener);
-    deviceLocations.put(wifiP2pDevice.deviceAddress, new Locations(deviceAddress));
+    deviceLocations.put("Me", new Locations("Me"));
   }
 
   @Override
@@ -314,14 +261,13 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
   @Override
   public void onRequestConnectionInfo() {
     ConnectionInfoListener connectionInfoListener = p2pCommunicationFragmentPagerAdapter
-        .getDiscoveryAndConnectionFragment();
+            .getDiscoveryAndConnectionFragment();
     p2pCommunicationWifiP2pManager.requestConnectionInfo(connectionInfoListener);
   }
 
   @Override
   public void onThisDeviceChanged(WifiP2pDevice wifiP2pDevice) {
     deviceAddress = wifiP2pDevice.deviceName;
-    data = new Locations(deviceAddress, 0, 0);
     myDeviceNameTextView.setText(wifiP2pDevice.deviceName);
     myDeviceStatusTextView.setText(getDeviceStatus(wifiP2pDevice.status));
   }
@@ -330,16 +276,16 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
   public void onGroupHostInfoChanged(WifiP2pInfo wifiP2pInfo) {
     if (wifiP2pInfo != null && wifiP2pInfo.groupFormed && wifiP2pInfo.isGroupOwner) {
       amIHostQuestionTextView.setText(
-          getString(R.string.am_i_host_question) + " " + getResources().getString(R.string.yes));
+              getString(R.string.am_i_host_question) + " " + getResources().getString(R.string.yes));
       hostIpTextView.setText(
-          getString(R.string.ip_capital_letters) + ": " + wifiP2pInfo.groupOwnerAddress
-              .getHostAddress());
+              getString(R.string.ip_capital_letters) + ": " + wifiP2pInfo.groupOwnerAddress
+                      .getHostAddress());
     } else if (wifiP2pInfo != null && wifiP2pInfo.groupFormed) {
       amIHostQuestionTextView.setText(
-          getString(R.string.am_i_host_question) + " " + getResources().getString(R.string.no));
+              getString(R.string.am_i_host_question) + " " + getResources().getString(R.string.no));
       hostIpTextView.setText(
-          getString(R.string.ip_capital_letters) + ": " + wifiP2pInfo.groupOwnerAddress
-              .getHostAddress());
+              getString(R.string.ip_capital_letters) + ": " + wifiP2pInfo.groupOwnerAddress
+                      .getHostAddress());
 
 
     } else {
@@ -351,12 +297,12 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
   @Override
   public void onStartReceivingMulticastMessages() {
     p2pCommunicationFragmentPagerAdapter.getCommunicationFragment()
-        .startReceivingMulticastMessages();
+            .startReceivingMulticastMessages();
   }
 
   private void createAndAcquireMulticastLock() {
     WifiManager wifiManager = (WifiManager) this.getApplicationContext()
-        .getSystemService(WIFI_SERVICE);
+            .getSystemService(WIFI_SERVICE);
     if (wifiManager != null) {
       MulticastLock multicastLock = wifiManager.createMulticastLock(TAG);
       multicastLock.acquire();
@@ -409,8 +355,6 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
 
 
 
-    /* --------------------------------------- Location Requests --------------------------------------- */
-
   private IntentFilter createWifiP2pIntentFilter() {
     IntentFilter wifiP2pIntentFilter = new IntentFilter();
     wifiP2pIntentFilter.addAction(WifiP2pManager.WIFI_P2P_STATE_CHANGED_ACTION);
@@ -436,57 +380,118 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
         return getString(R.string.unknown);
     }
   }
-//
-//    public boolean checkLocationPermission() {
-//        if (ContextCompat.checkSelfPermission(this,
-//                Manifest.permission. ACCESS_FINE_LOCATION)
-//                != PackageManager.PERMISSION_GRANTED) {
-//
-//            // Should we show an explanation?
-//            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
-//                    Manifest.permission. ACCESS_FINE_LOCATION)) {
-//
-//                // Show an explanation to the user *asynchronously* -- don't block
-//                // this thread waiting for the user's response! After the user
-//                // sees the explanation, try again to request the permission.
-//                new AlertDialog.Builder(this)
-//                        .setTitle("")
-//                        .setMessage("")
-//                        .setPositiveButton("", new DialogInterface.OnClickListener() {
-//                            @Override
-//                            public void onClick(DialogInterface dialogInterface, int i) {
-//                                //Prompt the user once explanation has been shown
-//                                ActivityCompat.requestPermissions(P2PCommunicationActivity.this,
-//                                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-//                                        MY_PERMISSIONS_REQUEST_LOCATION);
-//                            }
-//                        })
-//                        .create()
-//                        .show();
-//
-//
-//            } else {
-//                // No explanation needed, we can request the permission.
-//                ActivityCompat.requestPermissions(this,
-//                        new String[]{Manifest.permission. ACCESS_FINE_LOCATION},
-//                        MY_PERMISSIONS_REQUEST_LOCATION);
-//            }
-//            return false;
-//        } else {
-//            return true;
-//        }
-//    }
+
+  /* --------------------------------------- Location Requests --------------------------------------- */
+  //App permission asks user to use location feature.
+  public static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
+  private final LocationListener locationListener = new LocationListener() {
+    @Override
+    public void onLocationChanged(Location location) {
+
+      double latitude = location.getLatitude();
+      double longitude = location.getLongitude();
+
+      locationGetter.add(0, latitude);
+      locationGetter.add(1, longitude);
+
+      deviceLocations.put("Closest", data2);
+
+      //test data
+      data2.update("Closest" , 42.042246, -111.355112);
+      data2.update("Closest" , 42.042246, -111.355621);
+      deviceLocations.put("Closest", data2);
+
+      data.update("Me", latitude, longitude);
+      deviceLocations.put("Me", data);
+
+      Timer t = new Timer();
+      t.schedule(new TimerTask() {
+        public void run() {
+          // write the method name here. which you want to call continuously
+          new LocationAsyncTask().execute();
+        }
+      }, 16000, 16000);
+
+      int secs = 5;
+      DelayHandler.delay(secs, new DelayHandler.DelayCallback() {
+        @Override
+        public void afterDelay() {
+          locationBasedSelect();
+        }
+      });
+      updateUserStatus(latitude, longitude);
+
+    }
+
+    @Override
+    public void onProviderDisabled(String provider) {
+      // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void onProviderEnabled(String provider) {
+      // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void onStatusChanged(String provider, int status, Bundle extras) {
+      // TODO Auto-generated method stub
+
+    }
+  };
+
+    public boolean checkLocationPermission() {
+        if (ContextCompat.checkSelfPermission(this,
+                Manifest.permission. ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+
+            // Should we show an explanation?
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                    Manifest.permission. ACCESS_FINE_LOCATION)) {
+
+                // Show an explanation to the user *asynchronously* -- don't block
+                // this thread waiting for the user's response! After the user
+                // sees the explanation, try again to request the permission.
+                new AlertDialog.Builder(this)
+                        .setTitle("")
+                        .setMessage("")
+                        .setPositiveButton("", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                //Prompt the user once explanation has been shown
+                                ActivityCompat.requestPermissions(P2PCommunicationActivity.this,
+                                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                                        MY_PERMISSIONS_REQUEST_LOCATION);
+                            }
+                        })
+                        .create()
+                        .show();
+
+
+            } else {
+                // No explanation needed, we can request the permission.
+                ActivityCompat.requestPermissions(this,
+                        new String[]{Manifest.permission. ACCESS_FINE_LOCATION},
+                        MY_PERMISSIONS_REQUEST_LOCATION);
+            }
+            return false;
+        } else {
+            return true;
+        }
+    }
 
   private void updateUserStatus(double latitude, double longitude) {
 
-    double angle = Direction.getBearings(deviceLocations.get(deviceAddress).getPreviousLongitude(),
-        deviceLocations.get(deviceAddress).getPreviousLatitude(),
-        deviceLocations.get(deviceAddress).getCurrentLongitude(),
-        deviceLocations.get(deviceAddress).getCurrentLatitude());
+    double angle = Direction.getBearings(deviceLocations.get("Me").getPreviousLongitude(),
+            deviceLocations.get("Me").getPreviousLatitude(),
+            deviceLocations.get("Me").getCurrentLongitude(),
+            deviceLocations.get("Me").getCurrentLatitude());
     String heading = Direction.getBearingsString(angle);
 
     personalLocation
-        .setText("Your Cordinates : " + latitude + ",   " + longitude + "\nGoing: " + heading);
+            .setText("Your Cordinates : " + latitude + ",   " + longitude + "\nGoing: " + heading);
 
   }
 
@@ -501,12 +506,12 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
       Locations v = entry.getValue();
 
       angle = Direction.angleBetweenThreePoints(v.getPreviousLatitude(), v.getPreviousLongitude(),
-          v.getCurrentLatitude(), v.getCurrentLongitude(), 42.042246, -111.355621);
+              v.getCurrentLatitude(), v.getCurrentLongitude(), 42.042246, -111.355621);
 
-      if (value == -1) {
+      if (value == -1 && value != NaN) {
         key = k;
         value = angle;
-      } else if (value > angle) {
+      } else if (value > angle && value != NaN) {
         key = k;
         value = angle;
       }
@@ -514,54 +519,20 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
     Toast.makeText(this, "Closest to North: " + key + "\n", Toast.LENGTH_SHORT).show();
   }
 
-  private void isLocationEnabled() {
-
-    if (!locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
-      AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
-      alertDialog.setTitle("Enable Location");
-      alertDialog
-          .setMessage("Your locations setting is not enabled. Please enabled it in settings menu.");
-      alertDialog.setPositiveButton("Location Settings", new DialogInterface.OnClickListener() {
-        public void onClick(DialogInterface dialog, int which) {
-          Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-          startActivity(intent);
-        }
-      });
-      alertDialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-        public void onClick(DialogInterface dialog, int which) {
-          dialog.cancel();
-        }
-      });
-      AlertDialog alert = alertDialog.create();
-      alert.show();
-    } else {
-      AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
-      alertDialog.setTitle("Confirm Location");
-      alertDialog.setMessage("Your Location is enabled, please enjoy");
-      alertDialog.setNegativeButton("Back to interface", new DialogInterface.OnClickListener() {
-        public void onClick(DialogInterface dialog, int which) {
-          dialog.cancel();
-        }
-      });
-      AlertDialog alert = alertDialog.create();
-      alert.show();
-    }
-  }
-
   @Override
   public void onRequestPermissionsResult(int requestCode, String permissions[],
-      int[] grantResults) {
+                                         int[] grantResults) {
     switch (requestCode) {
       case MY_PERMISSIONS_REQUEST_LOCATION: {
         // If request is cancelled, the result arrays are empty.
         if (grantResults.length > 0
-            && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 
           // permission was granted, yay! Do the
           // location-related task you need to do.
           if (ContextCompat.checkSelfPermission(this,
-              Manifest.permission.ACCESS_FINE_LOCATION)
-              == PackageManager.PERMISSION_GRANTED) {
+                  Manifest.permission.ACCESS_FINE_LOCATION)
+                  == PackageManager.PERMISSION_GRANTED) {
           }
 
         } else {

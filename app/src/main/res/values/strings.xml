@@ -65,6 +65,7 @@
   <string name="title_activity_client">Chat Room</string>
   <string name="title_file_client">File Transfer</string>
   <string name="title_file_server">File Transfer</string>
+  <string name="Me">Me</string>
 
 
   /////////////////
