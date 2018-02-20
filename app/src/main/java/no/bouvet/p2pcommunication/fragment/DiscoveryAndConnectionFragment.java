@@ -108,57 +108,10 @@ public class DiscoveryAndConnectionFragment extends ListFragment implements Disc
 
     if (wifiP2pDevice.status == WifiP2pDevice.CONNECTED) {
 
-//
-//            Intent intent = new Intent(getActivity(), FileServer.class);
-//            startActivity(intent);
 
-//            AlertDialog.Builder builder1 = new AlertDialog.Builder(getActivity());
-//            builder1.setMessage("Choose one");
-//            builder1.setCancelable(true);
-//
-//
-//
-//
-//
-//            builder1.setPositiveButton(
-//                    "Create Chat Room",
-//                    new DialogInterface.OnClickListener() {
-//                        public void onClick(DialogInterface dialog, int id) {
-//
-//
-//                            Intent intent = new Intent(getActivity(), Server.class);
-//                  startActivity(intent);
-//                        }
-//                    });
-//
-//            builder1.setNegativeButton(
-//                    "Join Chat Room",
-//                    new DialogInterface.OnClickListener() {
-//                        public void onClick(DialogInterface dialog, int id) {
-//
-//
-//                            Intent intent = new Intent(getActivity(), Client.class);
-//            startActivity(intent);
-//                        }
-//                    });
-//
-//            builder1.setNeutralButton(
-//                    "Upload File",
-//                    new DialogInterface.OnClickListener() {
-//                        public void onClick(DialogInterface dialog, int id) {
-//
-//
-//                            Intent intent = new Intent(getActivity(), FileServer.class);
-//                            startActivity(intent);
-//                        }
-//                    });
-//
-//
-//            AlertDialog alert11 = builder1.create();
-//            alert11.show();
 
       AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-      builder.setTitle("Choose 1");
+      builder.setTitle("Choose one");
       builder.setItems(
           new CharSequence[]{"Create chat room", "Join chat room", "Upload file", "Download File"},
           new DialogInterface.OnClickListener() {
