@@ -113,7 +113,8 @@ public class DiscoveryAndConnectionFragment extends ListFragment implements Disc
       AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
       builder.setTitle("Choose one");
       builder.setItems(
-          new CharSequence[]{"Create chat room", "Join chat room", "Upload file", "Download File"},
+//           new CharSequence[]{"Create chat room", "Join chat room", "Upload file", "Download File"},
+                    new CharSequence[]{"Create chat room", "Join chat room"},
           new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int which) {
 
