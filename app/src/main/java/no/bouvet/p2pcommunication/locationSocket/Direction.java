@@ -12,7 +12,6 @@ public class Direction {
 
   //This method takes in two sets of coordinates and determines the distance in km.
 
-  //TODO (lat, long) at the moment we have (long, lat).
   public static double getDistance(double firstLat, double firstLong, double secondLat,
       double secondLong) {
     double Radius = 6372.8;

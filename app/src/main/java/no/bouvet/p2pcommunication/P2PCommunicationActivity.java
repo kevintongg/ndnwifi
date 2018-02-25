@@ -40,6 +40,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 import no.bouvet.p2pcommunication.adapter.P2pCommunicationFragmentPagerAdapter;
 import no.bouvet.p2pcommunication.broadcastreceiver.WifiP2pBroadcastReceiver;
+import no.bouvet.p2pcommunication.deviceList.Device;
 import no.bouvet.p2pcommunication.fragment.CommunicationFragment;
 import no.bouvet.p2pcommunication.fragment.DiscoveryAndConnectionFragment;
 import no.bouvet.p2pcommunication.listener.discovery.DiscoveryStateListener;
@@ -65,6 +66,8 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
   public static P2pCommunicationWifiP2pManager p2pCommunicationWifiP2pManager;
   public static ArrayList<Double> locationGetter = new ArrayList<>();
   public static HashMap<String, Locations> deviceLocations = new HashMap<>();
+  public static  HashMap<String, Device> deviceList = new HashMap<>();
+  public static String myDeviceName = "Me";
 
   public String deviceAddress;
   public static boolean isChatOn = false;
@@ -114,7 +117,7 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
     setViewPager(viewPager, p2pCommunicationFragmentPagerAdapter);
 
     locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-    data = new Locations("Me", 0, 0);
+    data = new Locations(myDeviceName, 0, 0);
 
     isBluetoothEnabled();
     isStoragePermissionGranted();
@@ -125,7 +128,7 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
         Log.d(TAG, "Location Working...");
         locationManager
                 .requestLocationUpdates(LocationManager.GPS_PROVIDER, 30000, 0, locationListener);
-        deviceLocations.put("Me", new Locations("Me"));
+        deviceLocations.put(myDeviceName, new Locations(myDeviceName));
       }
     }
     checkLocationPermission();
@@ -233,7 +236,7 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
     InvitationToConnectListener invitationToConnectListener = p2pCommunicationFragmentPagerAdapter
             .getDiscoveryAndConnectionFragment();
     p2pCommunicationWifiP2pManager.connect(wifiP2pDevice, invitationToConnectListener);
-    deviceLocations.put("Me", new Locations("Me"));
+    deviceLocations.put(myDeviceName, new Locations(myDeviceName));
   }
 
   @Override
@@ -401,8 +404,8 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
       data2.update("Closest" , 42.042246, -111.355621);
       deviceLocations.put("Closest", data2);
 
-      data.update("Me", latitude, longitude);
-      deviceLocations.put("Me", data);
+      data.update(myDeviceName, latitude, longitude);
+      deviceLocations.put(myDeviceName, data);
 
       Timer t = new Timer();
       t.schedule(new TimerTask() {
@@ -484,10 +487,10 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
 
   private void updateUserStatus(double latitude, double longitude) {
 
-    double angle = Direction.getBearings(deviceLocations.get("Me").getPreviousLongitude(),
-            deviceLocations.get("Me").getPreviousLatitude(),
-            deviceLocations.get("Me").getCurrentLongitude(),
-            deviceLocations.get("Me").getCurrentLatitude());
+    double angle = Direction.getBearings(deviceLocations.get(myDeviceName).getPreviousLongitude(),
+            deviceLocations.get(myDeviceName).getPreviousLatitude(),
+            deviceLocations.get(myDeviceName).getCurrentLongitude(),
+            deviceLocations.get(myDeviceName).getCurrentLatitude());
     String heading = Direction.getBearingsString(angle);
 
     personalLocation

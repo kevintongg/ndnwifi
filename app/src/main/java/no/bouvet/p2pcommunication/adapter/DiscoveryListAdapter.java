@@ -2,11 +2,20 @@ package no.bouvet.p2pcommunication.adapter;
 
 import android.content.Context;
 import android.net.wifi.p2p.WifiP2pDevice;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+
+import java.util.HashMap;
+import java.util.Map;
+
 import no.bouvet.p2pcommunication.R;
+import no.bouvet.p2pcommunication.deviceList.Device;
+
+import static no.bouvet.p2pcommunication.P2PCommunicationActivity.deviceList;
+import static no.bouvet.p2pcommunication.P2PCommunicationActivity.deviceLocations;
 
 public class DiscoveryListAdapter extends ArrayAdapter<WifiP2pDevice> {
 
@@ -26,6 +35,13 @@ public class DiscoveryListAdapter extends ArrayAdapter<WifiP2pDevice> {
         convertView);
 
     WifiP2pDevice myDevice = getItem(position);
+
+    //saves the name and key
+
+    if(!(deviceList.containsKey(myDevice.deviceAddress))) {
+
+        deviceList.put(myDevice.deviceAddress, new Device(myDevice.deviceName, myDevice.deviceAddress));
+    }
 
     discoveryListAdapterViewHolder.deviceNameTextView.setText(myDevice.deviceName);
     discoveryListAdapterViewHolder.deviceStatusTextView.setText(getDeviceStatus(myDevice.status));

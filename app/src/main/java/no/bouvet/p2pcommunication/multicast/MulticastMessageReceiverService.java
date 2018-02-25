@@ -1,9 +1,13 @@
 package no.bouvet.p2pcommunication.multicast;
 
+import static no.bouvet.p2pcommunication.P2PCommunicationActivity.deviceList;
 import static no.bouvet.p2pcommunication.P2PCommunicationActivity.deviceLocations;
+import static no.bouvet.p2pcommunication.P2PCommunicationActivity.myDeviceName;
 
 import android.app.IntentService;
 import android.content.Intent;
+import android.net.wifi.p2p.WifiP2pDevice;
+import android.net.wifi.p2p.WifiP2pManager;
 import android.os.Bundle;
 import android.os.Message;
 import android.os.Messenger;
@@ -41,55 +45,34 @@ public class MulticastMessageReceiverService extends IntentService {
 
   @Override
   protected void onHandleIntent(Intent intent) {
-    final String action = intent.getAction();
-    if (action.equals(ACTION_LISTEN_FOR_MULTICAST)) {
-      isRunning = true;
+      final String action = intent.getAction();
+      if (action.equals(ACTION_LISTEN_FOR_MULTICAST)) {
+          isRunning = true;
       try {
-        MulticastSocket multicastSocket = createMulticastSocket();
-        while (isRunning) {
-          DatagramPacket datagramPacket = createDatagramPacket();
-          multicastSocket.receive(datagramPacket);
+          MulticastSocket multicastSocket = createMulticastSocket();
+          while (isRunning) {
+              DatagramPacket datagramPacket = createDatagramPacket();
 
-          byte[] bb = datagramPacket.getData();
-          String test = getFirstLetter(datagramPacket);
+              multicastSocket.receive(datagramPacket);
 
+              byte[] byteDate = datagramPacket.getData();
 
-                    /* In order to determine what type of data packet was sent every chat message starts with ':', this condition checks for this and determines whether the packet is
-                    being sent for location or chat. */
+              String test = getFirstLetter(datagramPacket);
 
-          if (!(test.contains(":"))) {
-            othersLocation = byteToDouble(bb);
-            String ip = getSenderName(datagramPacket);
+              /* In order to determine what type of data packet was sent every chat message starts with ':', this condition checks for this and determines whether the packet is
+              being sent for location or chat. */
+              if (!(test.contains(":"))) {
 
-            if (!ip.equals(NetworkUtil.getMyWifiP2pIpAddress())) {
+                  getLocation(byteDate, datagramPacket);
 
-              if (deviceLocations.containsKey(ip)) {
-
-                deviceLocations.get(ip).update(ip, othersLocation[0], othersLocation[1]);
-
-              } else if (!deviceLocations.containsKey(ip)) {
-
-                Locations data = new Locations(ip, othersLocation[0], othersLocation[1]);
-                data.update(ip, othersLocation[0], othersLocation[1]);
-                deviceLocations.put(ip, data);
-
-                deviceLocations.get(ip).setDistance(othersLocation[0], othersLocation[1],
-                    deviceLocations.get("Me").getCurrentLatitude(),
-                    deviceLocations.get("Me").getCurrentLongitude());
-
+              }else {
+                  sendReceivedDataToMulticastMessageReceivedHandler(getHandlerMessenger(intent), datagramPacket);
               }
-
-              // Log.d(TAG, "Location: " + ip);
-            }
-          } else {
-            sendReceivedDataToMulticastMessageReceivedHandler(getHandlerMessenger(intent),
-                datagramPacket);
           }
-        }
-      } catch (IOException | RemoteException e) {
-        Log.e(TAG, e.toString());
+      }catch (IOException | RemoteException e) {
+          Log.e(TAG, e.toString());
       }
-    }
+      }
   }
 
   @Override
@@ -124,7 +107,7 @@ public class MulticastMessageReceiverService extends IntentService {
 
   private String getSenderName(DatagramPacket datagramPacket) {
 
-    return datagramPacket.getAddress().getHostName();
+    return datagramPacket.getAddress().getHostAddress();
   }
 
   private String getReceivedText(DatagramPacket datagramPacket) {
@@ -171,5 +154,42 @@ public class MulticastMessageReceiverService extends IntentService {
 
     return doubles;
   }
+
+  private void getLocation(byte[] byteDate, DatagramPacket datagramPacket){
+      othersLocation = byteToDouble(byteDate);
+      String ip2Name = getSenderName(datagramPacket);
+
+
+      if (!ip2Name.equals(NetworkUtil.getMyWifiP2pIpAddress())) {
+          String temp = ip2Name;
+          deviceList.get(ip2Name).setIp(temp);
+          ip2Name = deviceList.get(ip2Name).getDeviceName();
+
+          //Contains Name
+          if (deviceLocations.containsKey(ip2Name)) {
+
+              deviceLocations.get(ip2Name).update(ip2Name,
+                      othersLocation[0],
+                      othersLocation[1]);
+          //Does not contain name
+          }else if (!deviceLocations.containsKey(ip2Name)) {
+
+              Locations data = new Locations(ip2Name,
+                      othersLocation[0],
+                      othersLocation[1]);
+
+              data.update(ip2Name, othersLocation[0], othersLocation[1]);
+
+              deviceLocations.put(ip2Name, data);
+
+              deviceLocations.get(ip2Name).setDistance(othersLocation[0], othersLocation[1],
+                      deviceLocations.get(myDeviceName).getCurrentLatitude(),
+                      deviceLocations.get(myDeviceName).getCurrentLongitude());
+
+          }
+      }
+  }
+
+
 
 }

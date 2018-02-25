@@ -4,10 +4,12 @@ import android.content.Context;
 import android.net.wifi.WpsInfo;
 import android.net.wifi.p2p.WifiP2pConfig;
 import android.net.wifi.p2p.WifiP2pDevice;
+import android.net.wifi.p2p.WifiP2pDeviceList;
 import android.net.wifi.p2p.WifiP2pManager;
 import android.net.wifi.p2p.WifiP2pManager.PeerListListener;
 import android.net.wifi.p2p.WifiP2pManager.Channel;
 import android.net.wifi.p2p.WifiP2pManager.ConnectionInfoListener;
+import android.util.Log;
 
 import no.bouvet.p2pcommunication.R;
 import no.bouvet.p2pcommunication.listener.invitation.InvitationToConnectListener;
@@ -40,7 +42,9 @@ public class P2pCommunicationWifiP2pManager {
     }
 
     public void requestPeers(PeerListListener peerListListener) {
-        wifiP2pManager.requestPeers(wifiP2pChannel, peerListListener);
+       wifiP2pManager.requestPeers(wifiP2pChannel, peerListListener);
+
+
     }
 
     public void connect(WifiP2pDevice wifiP2pDevice, InvitationToConnectListener invitationToConnectListener) {
