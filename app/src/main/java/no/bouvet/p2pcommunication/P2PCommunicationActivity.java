@@ -273,6 +273,12 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
     deviceAddress = wifiP2pDevice.deviceName;
     myDeviceNameTextView.setText(wifiP2pDevice.deviceName);
     myDeviceStatusTextView.setText(getDeviceStatus(wifiP2pDevice.status));
+    
+    if( wifiP2pDevice.status == WifiP2pDevice.CONNECTED ){
+       sendC();
+      // sendS();
+    }
+    
   }
 
   @Override
@@ -549,5 +555,70 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
     }
 
   }
+ public void sendS() {
+      StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+      StrictMode.setThreadPolicy(policy);
 
+      try {
+          ServerSocket sersock = new ServerSocket(8080);
+//        System.out.println("Server ready........");
+          Socket sock = sersock.accept();
+
+          Log.d("SendServer", "Server here waiting");
+
+
+          OutputStream ostream = sock.getOutputStream();
+          BufferedWriter bw1 = new BufferedWriter(new OutputStreamWriter(ostream));
+          String s2 = "Hello From.... " + new java.util.Date();
+          bw1.write(s2);
+
+          bw1.close();
+          ostream.close();
+          sock.close();
+          sersock.close();
+      } catch (SocketException exception) {
+
+      } catch (IOException exception) {
+
+      }
+  }
+
+  public void sendC() {
+      StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+      StrictMode.setThreadPolicy(policy);
+      try {
+          Socket sock = new Socket("192.168.49.1", 8080);
+
+          InputStream istream = sock.getInputStream();
+          BufferedReader br1 = new BufferedReader(new InputStreamReader(istream));
+
+          stringS = br1.readLine();
+//        System.out.println(s1);
+          Log.d("Sendclient", "client here waiting ");
+
+          //show alert box for string received from server
+
+          AlertDialog.Builder myAlert = new AlertDialog.Builder(this);
+          myAlert.setMessage(stringS)
+                  .setPositiveButton("Exit!", new DialogInterface.OnClickListener() {
+                      @Override
+                      public void onClick(DialogInterface dialog, int which) {
+                          dialog.dismiss();
+                      }
+                  })
+                  .create();
+          myAlert.show();
+
+
+
+
+          br1.close();
+          istream.close();
+          sock.close();
+
+      } catch (SocketException exception) {
+
+      } catch (IOException exception) {
+
+      }
 }
