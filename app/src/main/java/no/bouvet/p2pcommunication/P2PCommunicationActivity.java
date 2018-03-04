@@ -156,6 +156,17 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
     if (currentDevice == null) {
       currentDevice = getIntent().getParcelableExtra(WifiP2pManager.EXTRA_WIFI_P2P_DEVICE);
     }
+
+      if (locationManager != null) {
+          if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                  == PackageManager.PERMISSION_GRANTED) {
+              Log.d(TAG, "Location Working...");
+              locationManager
+                      .requestLocationUpdates(LocationManager.GPS_PROVIDER, 30000, 0, locationListener);
+              deviceLocations.put(myDeviceName, new Locations(myDeviceName));
+          }
+      }
+
   }
 
   /* --------------------------------------- Permission Requests --------------------------------------- */
@@ -204,8 +215,9 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
   /* --------------------------------------- Wi-Fi Direct Methods --------------------------------------- */
   @Override
   public void onPause() {
-    super.onPause();
-    unregisterReceiver(wifiP2pBroadcastReceiver);
+      super.onPause();
+      unregisterReceiver(wifiP2pBroadcastReceiver);
+      locationManager.removeUpdates(locationListener);
 
   }
 
