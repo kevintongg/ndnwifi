@@ -22,6 +22,7 @@ import android.net.wifi.p2p.WifiP2pManager.PeerListListener;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.StrictMode;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
@@ -33,6 +34,17 @@ import android.widget.TextView;
 import android.widget.Toast;
 import butterknife.BindView;
 import butterknife.ButterKnife;
+
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -66,18 +78,19 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
   public static P2pCommunicationWifiP2pManager p2pCommunicationWifiP2pManager;
   public static ArrayList<Double> locationGetter = new ArrayList<>();
   public static HashMap<String, Locations> deviceLocations = new HashMap<>();
-  public static  HashMap<String, Device> deviceList = new HashMap<>();
+  public static HashMap<String, Device> deviceList = new HashMap<>();
   public static String myDeviceName = "Me";
 
   public String deviceAddress;
   public static boolean isChatOn = false;
+  // import main activity
+  // then use current device wifiP2pDevice
   public static WifiP2pDevice currentDevice;
   public static String devicesInChat = "";
   Locations data;
 
   //test data
   Locations data2 = new Locations("Closest", 0, 0);
-
 
 
   @BindView(R.id.view_pager)
@@ -273,12 +286,12 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
     deviceAddress = wifiP2pDevice.deviceName;
     myDeviceNameTextView.setText(wifiP2pDevice.deviceName);
     myDeviceStatusTextView.setText(getDeviceStatus(wifiP2pDevice.status));
-    
-    if( wifiP2pDevice.status == WifiP2pDevice.CONNECTED ){
-       sendC();
+
+    if (wifiP2pDevice.status == WifiP2pDevice.CONNECTED) {
+      sendC();
       // sendS();
     }
-    
+
   }
 
   @Override
@@ -363,7 +376,6 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
 //    }
 
 
-
   private IntentFilter createWifiP2pIntentFilter() {
     IntentFilter wifiP2pIntentFilter = new IntentFilter();
     wifiP2pIntentFilter.addAction(WifiP2pManager.WIFI_P2P_STATE_CHANGED_ACTION);
@@ -406,8 +418,8 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
       deviceLocations.put("Closest", data2);
 
       //test data
-      data2.update("Closest" , 42.042246, -111.355112);
-      data2.update("Closest" , 42.042246, -111.355621);
+      data2.update("Closest", 42.042246, -111.355112);
+      data2.update("Closest", 42.042246, -111.355621);
       deviceLocations.put("Closest", data2);
 
       data.update(myDeviceName, latitude, longitude);
@@ -451,45 +463,45 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
     }
   };
 
-    public boolean checkLocationPermission() {
-        if (ContextCompat.checkSelfPermission(this,
-                Manifest.permission. ACCESS_FINE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED) {
+  public boolean checkLocationPermission() {
+    if (ContextCompat.checkSelfPermission(this,
+            Manifest.permission.ACCESS_FINE_LOCATION)
+            != PackageManager.PERMISSION_GRANTED) {
 
-            // Should we show an explanation?
-            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
-                    Manifest.permission. ACCESS_FINE_LOCATION)) {
+      // Should we show an explanation?
+      if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+              Manifest.permission.ACCESS_FINE_LOCATION)) {
 
-                // Show an explanation to the user *asynchronously* -- don't block
-                // this thread waiting for the user's response! After the user
-                // sees the explanation, try again to request the permission.
-                new AlertDialog.Builder(this)
-                        .setTitle("")
-                        .setMessage("")
-                        .setPositiveButton("", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                                //Prompt the user once explanation has been shown
-                                ActivityCompat.requestPermissions(P2PCommunicationActivity.this,
-                                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                                        MY_PERMISSIONS_REQUEST_LOCATION);
-                            }
-                        })
-                        .create()
-                        .show();
+        // Show an explanation to the user *asynchronously* -- don't block
+        // this thread waiting for the user's response! After the user
+        // sees the explanation, try again to request the permission.
+        new AlertDialog.Builder(this)
+                .setTitle("")
+                .setMessage("")
+                .setPositiveButton("", new DialogInterface.OnClickListener() {
+                  @Override
+                  public void onClick(DialogInterface dialogInterface, int i) {
+                    //Prompt the user once explanation has been shown
+                    ActivityCompat.requestPermissions(P2PCommunicationActivity.this,
+                            new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                            MY_PERMISSIONS_REQUEST_LOCATION);
+                  }
+                })
+                .create()
+                .show();
 
 
-            } else {
-                // No explanation needed, we can request the permission.
-                ActivityCompat.requestPermissions(this,
-                        new String[]{Manifest.permission. ACCESS_FINE_LOCATION},
-                        MY_PERMISSIONS_REQUEST_LOCATION);
-            }
-            return false;
-        } else {
-            return true;
-        }
+      } else {
+        // No explanation needed, we can request the permission.
+        ActivityCompat.requestPermissions(this,
+                new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                MY_PERMISSIONS_REQUEST_LOCATION);
+      }
+      return false;
+    } else {
+      return true;
     }
+  }
 
   private void updateUserStatus(double latitude, double longitude) {
 
@@ -555,70 +567,72 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
     }
 
   }
- public void sendS() {
-      StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
-      StrictMode.setThreadPolicy(policy);
 
-      try {
-          ServerSocket sersock = new ServerSocket(8080);
+  public void sendS() {
+    StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+    StrictMode.setThreadPolicy(policy);
+
+    try {
+      ServerSocket sersock = new ServerSocket(8080);
 //        System.out.println("Server ready........");
-          Socket sock = sersock.accept();
+      Socket sock = sersock.accept();
 
-          Log.d("SendServer", "Server here waiting");
+      Log.d("SendServer", "Server here waiting");
 
 
-          OutputStream ostream = sock.getOutputStream();
-          BufferedWriter bw1 = new BufferedWriter(new OutputStreamWriter(ostream));
-          String s2 = "Hello From.... " + new java.util.Date();
-          bw1.write(s2);
+      OutputStream ostream = sock.getOutputStream();
+      BufferedWriter bw1 = new BufferedWriter(new OutputStreamWriter(ostream));
+      String s2 = "Hello From.... " + new java.util.Date();
+      bw1.write(s2);
 
-          bw1.close();
-          ostream.close();
-          sock.close();
-          sersock.close();
-      } catch (SocketException exception) {
+      bw1.close();
+      ostream.close();
+      sock.close();
+      sersock.close();
+    } catch (SocketException exception) {
 
-      } catch (IOException exception) {
+    } catch (IOException exception) {
 
-      }
+    }
   }
 
+  public String stringS;
+
   public void sendC() {
-      StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
-      StrictMode.setThreadPolicy(policy);
-      try {
-          Socket sock = new Socket("192.168.49.1", 8080);
+    StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+    StrictMode.setThreadPolicy(policy);
+    try {
+      Socket sock = new Socket("192.168.49.1", 8080);
 
-          InputStream istream = sock.getInputStream();
-          BufferedReader br1 = new BufferedReader(new InputStreamReader(istream));
+      InputStream istream = sock.getInputStream();
+      BufferedReader br1 = new BufferedReader(new InputStreamReader(istream));
 
-          stringS = br1.readLine();
+      stringS = br1.readLine();
 //        System.out.println(s1);
-          Log.d("Sendclient", "client here waiting ");
+      Log.d("Sendclient", "client here waiting ");
 
-          //show alert box for string received from server
+      //show alert box for string received from server
 
-          AlertDialog.Builder myAlert = new AlertDialog.Builder(this);
-          myAlert.setMessage(stringS)
-                  .setPositiveButton("Exit!", new DialogInterface.OnClickListener() {
-                      @Override
-                      public void onClick(DialogInterface dialog, int which) {
-                          dialog.dismiss();
-                      }
-                  })
-                  .create();
-          myAlert.show();
-
-
+      AlertDialog.Builder myAlert = new AlertDialog.Builder(this);
+      myAlert.setMessage(stringS)
+              .setPositiveButton("Exit!", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                  dialog.dismiss();
+                }
+              })
+              .create();
+      myAlert.show();
 
 
-          br1.close();
-          istream.close();
-          sock.close();
+      br1.close();
+      istream.close();
+      sock.close();
 
-      } catch (SocketException exception) {
+    } catch (SocketException exception) {
 
-      } catch (IOException exception) {
+    } catch (IOException exception) {
 
-      }
+    }
+  }
 }
