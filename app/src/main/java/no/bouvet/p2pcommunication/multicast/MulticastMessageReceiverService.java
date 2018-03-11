@@ -171,6 +171,7 @@ public class MulticastMessageReceiverService extends IntentService {
               deviceLocations.get(ip2Name).update(ip2Name,
                       othersLocation[0],
                       othersLocation[1]);
+
           //Does not contain name
           }else if (!deviceLocations.containsKey(ip2Name)) {
 

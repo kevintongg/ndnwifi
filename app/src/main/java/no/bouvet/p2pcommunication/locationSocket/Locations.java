@@ -7,24 +7,24 @@ package no.bouvet.p2pcommunication.locationSocket;
 
 public class Locations {
 
-  String deviceAdress;
+  String deviceAddress;
   double[] locations = new double[6];
   double angle = 0;
   String heading = "";
   double distance = 0;
 
   public Locations(String device, double latitude, double longitude) {
-    this.deviceAdress = device;
+    this.deviceAddress = device;
     this.locations[0] = latitude;
     this.locations[1] = longitude;
   }
 
   public Locations(String device) {
-    this.deviceAdress = device;
+    this.deviceAddress = device;
   }
 
-  public void update(String deviceAdress, double latitude, double longitude) {
-    if (this.deviceAdress.equals(deviceAdress)) {
+  public void update(String deviceAddress, double latitude, double longitude) {
+    if (this.deviceAddress.equals(deviceAddress)) {
       this.locations[5] = this.locations[3];
       this.locations[4] = this.locations[2];
       this.locations[3] = this.locations[1];
@@ -35,8 +35,8 @@ public class Locations {
     }
   }
 
-  public void update(String deviceAdress, double[] location) {
-    if (this.deviceAdress.equals(deviceAdress) && location.length == 2) {
+  public void update(String deviceAddress, double[] location) {
+    if (this.deviceAddress.equals(deviceAddress) && location.length == 2) {
       this.locations[5] = this.locations[3];
       this.locations[4] = this.locations[2];
       this.locations[3] = this.locations[1];

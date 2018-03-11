@@ -48,6 +48,7 @@ import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 import no.bouvet.p2pcommunication.adapter.P2pCommunicationFragmentPagerAdapter;
@@ -79,18 +80,19 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
   public static ArrayList<Double> locationGetter = new ArrayList<>();
   public static HashMap<String, Locations> deviceLocations = new HashMap<>();
   public static HashMap<String, Device> deviceList = new HashMap<>();
-  public static String myDeviceName = "Me";
-
+  public static String myDeviceName;
+  boolean hasGottenName = false;
   public String deviceAddress;
-  public static boolean isChatOn = false;
-  // import main activity
-  // then use current device wifiP2pDevice
   public static WifiP2pDevice currentDevice;
-  public static String devicesInChat = "";
   Locations data;
 
   //test data
   Locations data2 = new Locations("Closest", 0, 0);
+
+
+  private WifiP2pBroadcastReceiver wifiP2pBroadcastReceiver;
+  private P2pCommunicationFragmentPagerAdapter p2pCommunicationFragmentPagerAdapter;
+  private boolean wifiP2pEnabled;
 
 
   @BindView(R.id.view_pager)
@@ -107,15 +109,6 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
   TextView hostIpTextView;
   LocationManager locationManager;
 
-  private WifiP2pBroadcastReceiver wifiP2pBroadcastReceiver;
-  private P2pCommunicationFragmentPagerAdapter p2pCommunicationFragmentPagerAdapter;
-  private boolean wifiP2pEnabled;
-  private Handler handler;
-
-  public Handler getHandler() {
-    return handler;
-  }
-
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
@@ -130,7 +123,6 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
     setViewPager(viewPager, p2pCommunicationFragmentPagerAdapter);
 
     locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-    data = new Locations(myDeviceName, 0, 0);
 
     isBluetoothEnabled();
     isStoragePermissionGranted();
@@ -141,7 +133,7 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
         Log.d(TAG, "Location Working...");
         locationManager
                 .requestLocationUpdates(LocationManager.GPS_PROVIDER, 30000, 0, locationListener);
-        deviceLocations.put(myDeviceName, new Locations(myDeviceName));
+        //deviceLocations.put(myDeviceName, new Locations(myDeviceName));
       }
     }
     checkLocationPermission();
@@ -217,7 +209,13 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
   public void onPause() {
       super.onPause();
       unregisterReceiver(wifiP2pBroadcastReceiver);
+
+    if (ContextCompat.checkSelfPermission(this,
+            Manifest.permission.ACCESS_FINE_LOCATION)
+            == PackageManager.PERMISSION_GRANTED) {
+
       locationManager.removeUpdates(locationListener);
+    }
 
   }
 
@@ -298,6 +296,12 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
     deviceAddress = wifiP2pDevice.deviceName;
     myDeviceNameTextView.setText(wifiP2pDevice.deviceName);
     myDeviceStatusTextView.setText(getDeviceStatus(wifiP2pDevice.status));
+
+    if(!hasGottenName){
+      myDeviceName = deviceAddress;
+      data = new Locations(myDeviceName, 0, 0);
+      hasGottenName = true;
+    }
 
     if (wifiP2pDevice.status == WifiP2pDevice.CONNECTED) {
       sendC();
@@ -421,38 +425,48 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
     @Override
     public void onLocationChanged(Location location) {
 
-      double latitude = location.getLatitude();
-      double longitude = location.getLongitude();
+      if(!(myDeviceName == null)) {
 
-      locationGetter.add(0, latitude);
-      locationGetter.add(1, longitude);
+        double latitude = location.getLatitude();
+        double longitude = location.getLongitude();
 
-      deviceLocations.put("Closest", data2);
+        locationGetter.add(0, latitude);
+        locationGetter.add(1, longitude);
 
-      //test data
-      data2.update("Closest", 42.042246, -111.355112);
-      data2.update("Closest", 42.042246, -111.355621);
-      deviceLocations.put("Closest", data2);
+        //test data
+        deviceLocations.put("Closest", data2);
+        data2.update("Closest", 42.042246, -111.355112);
+        data2.update("Closest", 42.042246, -111.355621);
+        deviceLocations.put("Closest", data2);
 
-      data.update(myDeviceName, latitude, longitude);
-      deviceLocations.put(myDeviceName, data);
+        data.update(myDeviceName, latitude, longitude);
 
-      Timer t = new Timer();
-      t.schedule(new TimerTask() {
-        public void run() {
-          // write the method name here. which you want to call continuously
-          new LocationAsyncTask().execute();
+        deviceLocations.put(myDeviceName, data);
+
+        for (Map.Entry<String, Locations> entry : deviceLocations.entrySet()) {
+          String key = entry.getKey();
+
+          Log.d(TAG, "Keys" + key);
         }
-      }, 16000, 16000);
 
-      int secs = 5;
-      DelayHandler.delay(secs, new DelayHandler.DelayCallback() {
-        @Override
-        public void afterDelay() {
-          locationBasedSelect();
-        }
-      });
-      updateUserStatus(latitude, longitude);
+
+        Timer t = new Timer();
+        t.schedule(new TimerTask() {
+          public void run() {
+            // write the method name here. which you want to call continuously
+            new LocationAsyncTask().execute();
+          }
+        }, 16000, 16000);
+
+        int secs = 5;
+        DelayHandler.delay(secs, new DelayHandler.DelayCallback() {
+          @Override
+          public void afterDelay() {
+            locationBasedSelect();
+          }
+        });
+        updateUserStatus(latitude, longitude);
+      }
 
     }
 
@@ -488,9 +502,9 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
         // this thread waiting for the user's response! After the user
         // sees the explanation, try again to request the permission.
         new AlertDialog.Builder(this)
-                .setTitle("")
-                .setMessage("")
-                .setPositiveButton("", new DialogInterface.OnClickListener() {
+                .setTitle("Location Request")
+                .setMessage("Location is needed to help relay messages and determine distance between other users")
+                .setPositiveButton("Okay", new DialogInterface.OnClickListener() {
                   @Override
                   public void onClick(DialogInterface dialogInterface, int i) {
                     //Prompt the user once explanation has been shown
@@ -569,9 +583,6 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
           }
 
         } else {
-
-          // permission denied, boo! Disable the
-          // functionality that depends on this permission.
 
         }
         return;
