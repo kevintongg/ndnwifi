@@ -1,3 +1,4 @@
+https://www.reddit.com/r/trendingsubreddits/.json
 ## P2P Communication
 This project is a proof of concept on establishing a P2P connection between two or more android-devices, and make them communicate using Multicast (UDP). This is accomplished by utilizing the [WiFi P2P API](http://developer.android.com/guide/topics/connectivity/wifip2p.html), also known as WiFi Direct.
 
