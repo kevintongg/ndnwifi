@@ -14,7 +14,7 @@ public class Device {
     public Device(String deviceName, String macAddress){
         this.deviceName = deviceName;
         this.macAddress = macAddress;
-        Log.d("------------------------------------ Practice -------------------------------- :", deviceName + " | " + macAddress);
+        Log.d("------------------------------------ Device -------------------------------- :", deviceName + " | " + macAddress);
 
     }
 

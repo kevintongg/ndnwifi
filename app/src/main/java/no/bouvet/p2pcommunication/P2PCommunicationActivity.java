@@ -15,6 +15,7 @@ import android.location.LocationManager;
 import android.net.wifi.WifiManager;
 import android.net.wifi.WifiManager.MulticastLock;
 import android.net.wifi.p2p.WifiP2pDevice;
+import android.net.wifi.p2p.WifiP2pGroup;
 import android.net.wifi.p2p.WifiP2pInfo;
 import android.net.wifi.p2p.WifiP2pManager;
 import android.net.wifi.p2p.WifiP2pManager.ConnectionInfoListener;
@@ -46,6 +47,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -64,7 +66,10 @@ import no.bouvet.p2pcommunication.listener.wifip2p.WifiP2pListener;
 import no.bouvet.p2pcommunication.locationSocket.Direction;
 import no.bouvet.p2pcommunication.locationSocket.LocationAsyncTask;
 import no.bouvet.p2pcommunication.locationSocket.Locations;
+import no.bouvet.p2pcommunication.util.NetworkUtil;
 import no.bouvet.p2pcommunication.wifip2p.P2pCommunicationWifiP2pManager;
+import no.bouvet.p2pcommunication.multiclients.Client;
+import no.bouvet.p2pcommunication.multiclients.Server;
 
 import static java.lang.Double.NaN;
 
@@ -80,11 +85,16 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
   public static ArrayList<Double> locationGetter = new ArrayList<>();
   public static HashMap<String, Locations> deviceLocations = new HashMap<>();
   public static HashMap<String, Device> deviceList = new HashMap<>();
+  public static String stringS;
+  public String hostIP;
+  public static Context context;
   public static String myDeviceName;
   boolean hasGottenName = false;
   public String deviceAddress;
   public static WifiP2pDevice currentDevice;
   Locations data;
+
+
 
   //test data
   Locations data2 = new Locations("Closest", 0, 0);
@@ -137,6 +147,11 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
       }
     }
     checkLocationPermission();
+    context = getBaseContext();
+  }
+
+  public static Context getContext() {
+    return context;
   }
 
   @Override
@@ -303,11 +318,6 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
       hasGottenName = true;
     }
 
-    if (wifiP2pDevice.status == WifiP2pDevice.CONNECTED) {
-      sendC();
-      // sendS();
-    }
-
   }
 
   @Override
@@ -401,6 +411,7 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
     return wifiP2pIntentFilter;
   }
 
+  //server
   private String getDeviceStatus(int deviceStatus) {
     switch (deviceStatus) {
       case WifiP2pDevice.AVAILABLE:
@@ -408,6 +419,10 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
       case WifiP2pDevice.INVITED:
         return getString(R.string.invited);
       case WifiP2pDevice.CONNECTED:
+          Client run = new Client();
+          run.run();
+          //Server run = new Server();
+          //run.run();
         return getString(R.string.connected);
       case WifiP2pDevice.FAILED:
         return getString(R.string.failed);
@@ -618,8 +633,6 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
 
     }
   }
-
-  public String stringS;
 
   public void sendC() {
     StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();

@@ -5,11 +5,14 @@ import android.net.wifi.WpsInfo;
 import android.net.wifi.p2p.WifiP2pConfig;
 import android.net.wifi.p2p.WifiP2pDevice;
 import android.net.wifi.p2p.WifiP2pDeviceList;
+import android.net.wifi.p2p.WifiP2pGroup;
 import android.net.wifi.p2p.WifiP2pManager;
 import android.net.wifi.p2p.WifiP2pManager.PeerListListener;
 import android.net.wifi.p2p.WifiP2pManager.Channel;
 import android.net.wifi.p2p.WifiP2pManager.ConnectionInfoListener;
 import android.util.Log;
+
+import java.util.Collection;
 
 import no.bouvet.p2pcommunication.R;
 import no.bouvet.p2pcommunication.listener.invitation.InvitationToConnectListener;
@@ -20,6 +23,7 @@ import no.bouvet.p2pcommunication.listener.wifip2p.action.WifiP2pCreateGroupActi
 import no.bouvet.p2pcommunication.listener.wifip2p.action.WifiP2pDisconnectActionListener;
 import no.bouvet.p2pcommunication.listener.wifip2p.action.WifiP2pStartPeerDiscoveryActionListener;
 import no.bouvet.p2pcommunication.listener.wifip2p.action.WifiP2pStopPeerDiscoveryActionListener;
+import no.bouvet.p2pcommunication.util.NetworkUtil;
 
 public class P2pCommunicationWifiP2pManager {
 
