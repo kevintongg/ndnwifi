@@ -1,0 +1,101 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:tools="http://schemas.android.com/tools"
+  android:layout_width="match_parent"
+  android:layout_height="match_parent"
+  android:orientation="vertical"
+  tools:context=".P2PCommunicationActivity">
+
+  <TextView
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:paddingTop="5dp"
+    android:paddingBottom="5dp"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:background="@color/teal_800"
+    android:gravity="center_vertical"
+    android:text="@string/me_capital_letters"
+    android:textColor="@color/white"
+    android:textSize="@dimen/abc_text_size_medium_material"/>
+
+  <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="85dp"
+    android:padding="@dimen/header_linear_layout_padding"
+    android:background="?android:attr/activatedBackgroundIndicator">
+
+    <ImageView
+      android:id="@+id/phone_icon"
+      android:layout_width="wrap_content"
+      android:layout_height="fill_parent"
+      android:src="@drawable/ic_action_phone"/>
+
+    <LinearLayout
+      android:layout_width="0dp"
+      android:layout_height="fill_parent"
+      android:layout_weight="1"
+      android:orientation="vertical">
+
+      <TextView
+        android:id="@+id/my_device_name_text_view"
+        android:layout_width="fill_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:gravity="bottom"/>
+
+      <TextView
+        android:id="@+id/my_device_status_text_view"
+        android:layout_width="fill_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:gravity="top"/>
+    </LinearLayout>
+
+    <LinearLayout
+      android:layout_width="0dp"
+      android:layout_height="fill_parent"
+      android:layout_weight="1"
+      android:orientation="vertical">
+
+      <TextView
+        android:id="@+id/am_i_host_question_text_view"
+        android:layout_width="fill_parent"
+        android:layout_height="0dp"
+        android:layout_weight="0.09"
+        android:gravity="bottom"/>
+
+      <TextView
+        android:id="@+id/host_ip_text_view"
+        android:layout_width="fill_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:gravity="top"/>
+
+      <TextView
+        android:id="@+id/personal_location"
+        android:layout_width="fill_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:gravity="top"/>
+    </LinearLayout>
+
+  </LinearLayout>
+
+  <android.support.v4.view.ViewPager
+    android:id="@+id/view_pager"
+    android:layout_width="wrap_content"
+    android:layout_height="fill_parent">
+
+    <android.support.v4.view.PagerTitleStrip
+      android:id="@+id/pager_title_strip"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_gravity="top"
+      android:paddingTop="5dp"
+      android:paddingBottom="5dp"
+      android:background="@color/teal_800"
+      android:textColor="@color/white"/>
+
+  </android.support.v4.view.ViewPager>
+
+</LinearLayout>

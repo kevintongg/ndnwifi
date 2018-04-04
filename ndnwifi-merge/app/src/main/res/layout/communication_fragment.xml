@@ -1,0 +1,51 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:tools="http://schemas.android.com/tools"
+  android:layout_width="match_parent"
+  android:layout_height="match_parent"
+  android:orientation="vertical"
+  tools:context=".P2PCommunicationActivity">
+
+  <ListView
+    android:id="@android:id/list"
+    android:layout_width="match_parent"
+    android:layout_height="0dip"
+    android:layout_weight="1"
+    android:divider="@null"
+    android:dividerHeight="0dp"
+    android:visibility="visible"/>
+
+  <LinearLayout
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal">
+
+    <EditText
+      android:id="@+id/user_input_edit_text"
+      android:layout_width="0dp"
+      android:layout_height="fill_parent"
+      android:layout_weight="1"
+      android:layout_marginLeft="@dimen/side_margin"
+      android:layout_marginRight="@dimen/side_margin"
+      android:ems="10"
+      android:hint="@string/write_a_message"
+      android:inputType="textMultiLine"/>
+
+    <ImageButton
+      android:id="@+id/upload_button"
+      android:layout_width="1dp"
+      android:layout_height="match_parent"
+      android:layout_weight="1"
+      android:src="@android:drawable/ic_menu_upload"/>
+    <ImageButton
+      android:id="@+id/send_button"
+      style="?android:attr/buttonBarButtonStyle"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:padding="@dimen/side_margin"
+      android:background="@drawable/send_button_click_animation"
+      android:src="@drawable/ic_action_send_now"/>
+
+  </LinearLayout>
+
+
+</LinearLayout>
