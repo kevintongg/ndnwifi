@@ -4,9 +4,14 @@ package no.bouvet.p2pcommunication.multiclients;
  * Created by Hieu on 3/20/2018.
  */
 
+import java.io.BufferedInputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.ServerSocket;
@@ -16,18 +21,18 @@ import java.util.Enumeration;
 
 import android.os.Bundle;
 import android.app.Activity;
+import android.os.Environment;
 import android.util.Log;
 import android.widget.TextView;
 
+import no.bouvet.p2pcommunication.image.Receive;
+
 public class Server extends Activity {
 
-    TextView info, infoip, msg;
     String message = "";
     ServerSocket serverSocket;
 
     public void  run() {
-
-
 
         Thread socketServerThread = new Thread(new SocketServerThread());
         socketServerThread.start();
@@ -59,15 +64,9 @@ public class Server extends Activity {
             DataOutputStream dataOutputStream = null;
 
             try {
+
                 serverSocket = new ServerSocket(SocketServerPORT);
-//                MainActivity.this.runOnUiThread(new Runnable() {
-//
-//                    @Override
-//                    public void run() {
-//                        info.setText("I'm waiting here: "
-//                                + serverSocket.getLocalPort());
-//                    }
-//                });
+
 
                 while (true) {
                     socket = serverSocket.accept();
@@ -86,30 +85,34 @@ public class Server extends Activity {
                             + ":" + socket.getPort() + "\n"
                             + "Msg from client: " + messageFromClient + "\n";
 
-//                    MainActivity.this.runOnUiThread(new Runnable() {
-//
-//                        @Override
-//                        public void run() {
-//                            msg.setText(message);
-//                        }
-//                    });
-                    Log.d("server", message);
-                    //send this msg to client
+                    Log.d("server count", String.valueOf(count));
+
+//                    Log.d("server", message);
+//                    //send this msg to client
+//                    if(count >= 2) {
                     String msgReply = "fourleaf.jpg";
                     dataOutputStream.writeUTF(msgReply);
+                    Log.d("server","executed");
+//                    }
+                    if( count >= 2){
+                        try {
+                            Thread.sleep(5000);
+                        } catch(InterruptedException e){
+                            e.printStackTrace();
+                        }finally {
+                            socket.close();
+                            Log.d("server","executed-----------");
+
+                            Receive run = new Receive();
+                            run.run();
+                        }
+
+                    }
 
                 }
             } catch (IOException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
-                final String errMsg = e.toString();
-//                MainActivity.this.runOnUiThread(new Runnable() {
-//
-//                    @Override
-//                    public void run() {
-//                        msg.setText(errMsg);
-//                    }
-//                });
 
             } finally {
                 if (socket != null) {
@@ -138,39 +141,13 @@ public class Server extends Activity {
                         e.printStackTrace();
                     }
                 }
+
             }
         }
 
     }
 
-    private String getIpAddress() {
-        String ip = "";
-        try {
-            Enumeration<NetworkInterface> enumNetworkInterfaces = NetworkInterface
-                    .getNetworkInterfaces();
-            while (enumNetworkInterfaces.hasMoreElements()) {
-                NetworkInterface networkInterface = enumNetworkInterfaces
-                        .nextElement();
-                Enumeration<InetAddress> enumInetAddress = networkInterface
-                        .getInetAddresses();
-                while (enumInetAddress.hasMoreElements()) {
-                    InetAddress inetAddress = enumInetAddress.nextElement();
 
-                    if (inetAddress.isSiteLocalAddress()) {
-                        ip += "SiteLocalAddress: "
-                                + inetAddress.getHostAddress() + "\n";
-                    }
 
-                }
 
-            }
-
-        } catch (SocketException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-            ip += "Something Wrong! " + e.toString() + "\n";
-        }
-
-        return ip;
-    }
 }

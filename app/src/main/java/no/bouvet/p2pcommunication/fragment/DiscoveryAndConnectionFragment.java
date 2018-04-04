@@ -303,57 +303,57 @@ public class DiscoveryAndConnectionFragment extends ListFragment implements Disc
 //        }
 //    }
 
-  public void sendC(String ip) {
-    StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
-    StrictMode.setThreadPolicy(policy);
-    try {
-      Socket sock = new Socket(ip, 7777);
-
-      InputStream istream = sock.getInputStream();
-      BufferedReader br1 = new BufferedReader(new InputStreamReader(istream));
-
-      stringS = br1.readLine();
-//        System.out.println(s1);
-      Log.d("Sendclient", "client here waiting ");
-
-      //show alert box for string received from server
-
-      AlertDialog.Builder myAlert = new AlertDialog.Builder(getActivity());
-//            myAlert.setMessage(stringS)
-//                    .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-//                        @Override
-//                        public void onClick(DialogInterface dialog, int which) {
-//                            Intent intent = new Intent(getActivity(), Client.class);
-//                            startActivity(intent);
-//                        }
-//                    })
-//                    .create();
-      myAlert.show();
-
-
-      br1.close();
-      istream.close();
-      sock.close();
-
-    } catch (SocketException exception) {
-
-    } catch (IOException exception) {
-
-    }
-  }
+//  public void sendC(String ip) {
+//    StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+//    StrictMode.setThreadPolicy(policy);
+//    try {
+//      Socket sock = new Socket(ip, 7777);
+//
+//      InputStream istream = sock.getInputStream();
+//      BufferedReader br1 = new BufferedReader(new InputStreamReader(istream));
+//
+//      stringS = br1.readLine();
+////        System.out.println(s1);
+//      Log.d("Sendclient", "client here waiting ");
+//
+//      //show alert box for string received from server
+//
+//      AlertDialog.Builder myAlert = new AlertDialog.Builder(getActivity());
+////            myAlert.setMessage(stringS)
+////                    .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+////                        @Override
+////                        public void onClick(DialogInterface dialog, int which) {
+////                            Intent intent = new Intent(getActivity(), Client.class);
+////                            startActivity(intent);
+////                        }
+////                    })
+////                    .create();
+//      myAlert.show();
+//
+//
+//      br1.close();
+//      istream.close();
+//      sock.close();
+//
+//    } catch (SocketException exception) {
+//
+//    } catch (IOException exception) {
+//
+//    }
+//  }
 
   @Override
   public void onStartedDiscovery() {
-      clearDiscoveryList();
-      searchLayout.setVisibility(View.VISIBLE);
-      noDevicesAvailableLayout.setVisibility(View.GONE);
-      leftBottomButton.setStateStopDiscovery();
+    clearDiscoveryList();
+    searchLayout.setVisibility(View.VISIBLE);
+    noDevicesAvailableLayout.setVisibility(View.GONE);
+    leftBottomButton.setStateStopDiscovery();
   }
 
   @Override
   public void onStoppedDiscovery() {
-      searchLayout.setVisibility(View.GONE);
-      leftBottomButton.setStateStartDiscovery();
+    searchLayout.setVisibility(View.GONE);
+    leftBottomButton.setStateStartDiscovery();
   }
 
   @Override

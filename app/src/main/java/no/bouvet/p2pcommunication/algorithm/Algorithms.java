@@ -1,14 +1,9 @@
 package no.bouvet.p2pcommunication.algorithm;
 
-import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.util.Log;
-import android.widget.Toast;
-
-import java.io.IOException;
 import java.util.Map;
 
-import butterknife.internal.Utils;
 import no.bouvet.p2pcommunication.deviceList.Device;
 import no.bouvet.p2pcommunication.locationSocket.Direction;
 import no.bouvet.p2pcommunication.locationSocket.Locations;
@@ -36,18 +31,9 @@ public class Algorithms {
     final double DEST_LAT = 0;
     final double DEST_LONG = 0;
 
-    public void prepareForwarding(String imageName){
-        forwarding(imageName, NetworkUtil.getMyWifiP2pIpAddress());
-    }
-
     public void forwarding(String imageName, String incoming){
-        // timeout will start with 10 seconds
-        // if a data is received, cancel the timout
-        // else, remove the corresponding PIT entries
-        Message message = new Message.MessageBuilder(NetworkUtil.getMyWifiP2pIpAddress(), MessageType.INTEREST,
-                imageName).build();
-        Log.d(TAG, "preparing message: " + imageName);
-        // try to forward base on hitmap
+
+        String message = "test";
 
         switch(forwardingStrategy){
             case "Flooding":
@@ -71,7 +57,7 @@ public class Algorithms {
 
 
     //First
-    public void first(Message message, String imageName, String ip){
+    public void first(String message, String imageName, String ip){
         for(Map.Entry<String, Device> entry : deviceList.entrySet()){
             String key = entry.getKey();
             Device list = entry.getValue();
@@ -85,7 +71,7 @@ public class Algorithms {
     }
 
     //Flooding
-    public void flooding(Message message, String imageName, String ip){
+    public void flooding(String message, String imageName, String ip){
         for(Map.Entry<String, Device> entry : deviceList.entrySet()){
             String key = entry.getKey();
             Device list = entry.getValue();
@@ -98,7 +84,7 @@ public class Algorithms {
 
 
     //Location angle
-    public void locationAngleBased(Message message, String imageName, String ip){
+    public void locationAngleBased(String message, String imageName, String ip){
         String ipKey = "";
         double value = -1;
         double angle;
@@ -128,7 +114,7 @@ public class Algorithms {
     }
 
     //Location angle
-    public void locationDistance(Message message, String imageName, String ip){
+    public void locationDistance(String message, String imageName, String ip){
         double distance = 0;
         String ipKey = "";
         double value = -1;
@@ -184,11 +170,11 @@ public class Algorithms {
         public static final String TAG = "sequentialtimeouttask";
         private final Integer timeout = 2000;
         private String name;
-        private Message message;
+        private String message;
         private String incoming;
         private String outgoing;
 
-        public SequentialTimeoutTask(Message message, String name,
+        public SequentialTimeoutTask(String message, String name,
                                      String incoming, String outgoing){
             this.message = message;
             this.name = name;

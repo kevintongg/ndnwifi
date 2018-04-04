@@ -421,8 +421,8 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
       case WifiP2pDevice.CONNECTED:
           Client run = new Client();
           run.run();
-          //Server run = new Server();
-          //run.run();
+//          Server run = new Server();
+//          run.run();
         return getString(R.string.connected);
       case WifiP2pDevice.FAILED:
         return getString(R.string.failed);

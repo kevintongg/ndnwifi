@@ -4,10 +4,14 @@ package no.bouvet.p2pcommunication.multiclients;
  * Created by Hieu on 3/20/2018.
  */
 
+import java.io.BufferedInputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
@@ -35,18 +39,15 @@ import android.widget.Toast;
 
 import no.bouvet.p2pcommunication.P2PCommunicationActivity;
 import no.bouvet.p2pcommunication.R;
+import no.bouvet.p2pcommunication.image.Receive;
+import no.bouvet.p2pcommunication.image.Send;
 
 public class Client extends AppCompatActivity {
     public static final int NOTIFICATION_ID = 1;
 
-    String welcomeMsg = "fourleaf.jpg";
+    String welcomeMsg = "";
 
     public void run() {
-
-
-
-
-
         MyClientTask myClientTask = new MyClientTask("192.168.49.1",8080, welcomeMsg);
         myClientTask.execute();
     }
@@ -73,9 +74,9 @@ public class Client extends AppCompatActivity {
             DataInputStream dataInputStream = null;
 
             try {
+
                 socket = new Socket(dstAddress, dstPort);
-                dataOutputStream = new DataOutputStream(
-                        socket.getOutputStream());
+                dataOutputStream = new DataOutputStream(socket.getOutputStream());
                 dataInputStream = new DataInputStream(socket.getInputStream());
 
                 if(msgToServer != null){
@@ -83,6 +84,8 @@ public class Client extends AppCompatActivity {
                 }
 
                 response = dataInputStream.readUTF();
+                socket.close();
+
 
             } catch (UnknownHostException e) {
                 // TODO Auto-generated catch block
@@ -119,55 +122,36 @@ public class Client extends AppCompatActivity {
                         e.printStackTrace();
                     }
                 }
+
+
+
             }
             return null;
         }
 
+        //get msg from server
         @Override
         protected void onPostExecute(Void result) {
-//            textResponse.setText(response);
             Log.d("Client",response);
             String fileName = response;
-            String pathtoimage= Environment.getExternalStoragePublicDirectory(
-                    Environment.DIRECTORY_DCIM).getAbsolutePath() + "/Camera/" + fileName;
-            File f = new File("/storage/emulated/0/DCIM/Camera/" + fileName);
-            if(!f.mkdir()){
-//                NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext());
-//        builder.setSmallIcon(R.drawable.chat_bubble_received);
-//        Intent intent = new Intent();
-//        intent.setAction(Intent.ACTION_VIEW);
-//        intent.setDataAndType(Uri.fromFile(file), "image/*");
-//
-//        PendingIntent pendingIntent = PendingIntent
-//            .getActivity(getApplicationContext(), 0, intent, 0);
-//        builder.setContentIntent(pendingIntent);
-//
-//        builder.setLargeIcon(BitmapFactory.decodeResource(getResources(), R.drawable.ic_launcher));
-//
-//        builder.setContentTitle("You Got An Image");
-//
-//        builder.setContentText("Image Arrived");
-//
-//        builder.setSubText("Tap to view image");
-//        builder.setDefaults(Notification.DEFAULT_ALL);
-//        builder.setAutoCancel(true);
-//
-//        NotificationManager notificationManager = (NotificationManager) getSystemService(
-//            NOTIFICATION_SERVICE);
-//
-//        notificationManager.notify(NOTIFICATION_ID, builder.build());
-
-
-//                Toast.makeText(,"image  found" , Toast.LENGTH_LONG).show();
+            File file = new File(Environment.getExternalStorageDirectory(), fileName);
+            if(file.exists()){
                 Log.d("client","image found");
+                Send run = new Send();
+                run.run();
+
             }
             else{
                 Log.d("client","image not found");
+                Receive run = new Receive();
+                run.run();
             }
 
             super.onPostExecute(result);
         }
 
     }
+
+
 
 }
