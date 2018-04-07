@@ -107,7 +107,10 @@ public class DiscoveryListAdapter extends ArrayAdapter<WifiP2pDevice>  {
           String ip = splitted[0];
           String mac = splitted[3];
           if (mac.equals(mac2)) {
-            Log.d("MGMT", ip);
+              deviceList.get(mac2).setIp(ip);
+
+              //Test if IP is being saved
+              Log.d("MAC Set: ", deviceList.get(mac2).getMacAddress() + " || IP: " + deviceList.get(mac2).getIp());
 
           }
         }
