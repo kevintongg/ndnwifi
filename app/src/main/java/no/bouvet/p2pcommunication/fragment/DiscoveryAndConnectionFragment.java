@@ -214,8 +214,6 @@ public class DiscoveryAndConnectionFragment extends ListFragment implements Disc
       wifiP2pListener.onConnect(wifiP2pDevice);
       clickedDeviceIp = wifiP2pDevice.deviceAddress;
 
-
-
       Log.i(TAG, wifiP2pDevice.deviceAddress);
     }
 
@@ -234,6 +232,7 @@ public class DiscoveryAndConnectionFragment extends ListFragment implements Disc
           String ip = splitted[0];
           String mac = splitted[3];
           if (mac.matches("..:..:..:..:..:..")) {
+            Log.d("MGMT", ip);
             Node thisNode = new Node(ip);
             listNote.add(thisNode);
           }

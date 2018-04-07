@@ -54,6 +54,7 @@ import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 import no.bouvet.p2pcommunication.adapter.P2pCommunicationFragmentPagerAdapter;
+import no.bouvet.p2pcommunication.algorithm.Algorithms;
 import no.bouvet.p2pcommunication.broadcastreceiver.WifiP2pBroadcastReceiver;
 import no.bouvet.p2pcommunication.deviceList.Device;
 import no.bouvet.p2pcommunication.fragment.CommunicationFragment;
@@ -169,7 +170,7 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
                   == PackageManager.PERMISSION_GRANTED) {
               Log.d(TAG, "Location Working...");
               locationManager
-                      .requestLocationUpdates(LocationManager.GPS_PROVIDER, 30000, 0, locationListener);
+                      .requestLocationUpdates(LocationManager.GPS_PROVIDER, 300, 0, locationListener);
               deviceLocations.put(myDeviceName, new Locations(myDeviceName));
           }
       }
@@ -334,8 +335,6 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
       hostIpTextView.setText(
               getString(R.string.ip_capital_letters) + ": " + wifiP2pInfo.groupOwnerAddress
                       .getHostAddress());
-
-
     } else {
       amIHostQuestionTextView.setText("");
       hostIpTextView.setText("");
@@ -419,10 +418,9 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
       case WifiP2pDevice.INVITED:
         return getString(R.string.invited);
       case WifiP2pDevice.CONNECTED:
-          Client run = new Client();
-          run.run();
-//          Server run = new Server();
-//          run.run();
+////        Server run = new Server();
+////        run.run();
+//        Algorithms.forwarding();
         return getString(R.string.connected);
       case WifiP2pDevice.FAILED:
         return getString(R.string.failed);
@@ -471,7 +469,7 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
             // write the method name here. which you want to call continuously
             new LocationAsyncTask().execute();
           }
-        }, 16000, 16000);
+        }, 160, 160);
 
         int secs = 5;
         DelayHandler.delay(secs, new DelayHandler.DelayCallback() {

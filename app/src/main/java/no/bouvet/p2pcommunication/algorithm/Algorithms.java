@@ -7,6 +7,7 @@ import java.util.Map;
 import no.bouvet.p2pcommunication.deviceList.Device;
 import no.bouvet.p2pcommunication.locationSocket.Direction;
 import no.bouvet.p2pcommunication.locationSocket.Locations;
+import no.bouvet.p2pcommunication.multiclients.Client;
 import no.bouvet.p2pcommunication.util.NetworkUtil;
 
 import static java.lang.Double.NaN;
@@ -21,35 +22,34 @@ import static no.bouvet.p2pcommunication.locationSocket.Direction.getDistance;
 //TODO: Work in Progress, implement First-hit, flooding, location
 public class Algorithms {
     public static final String TAG = "Algorithms";
-    String forwardingStrategy = "Flooding";
+    public static String forwardingStrategy = "First";
 
     //Use for Destination Phone
-    final double SOURCE_LAT = 0;
-    final double SOURCE_LONG = 0;
+    final public static double SOURCE_LAT = 0;
+    final public static double SOURCE_LONG = 0;
 
     //Use for Source Phone
     final double DEST_LAT = 0;
     final double DEST_LONG = 0;
 
-    public void forwarding(String imageName, String incoming){
+    public static void forwarding(){
 
-        String message = "test";
 
         switch(forwardingStrategy){
             case "Flooding":
-                flooding(message, imageName, incoming);
+                flooding();
                 break;
             case "First":
-                first(message, imageName, incoming);
+                first();
                 break;
             case "Angle-Based":
-                locationAngleBased(message, imageName, incoming);
+                locationAngleBased();
                 break;
             case "Distance":
-                locationDistance(message, imageName, incoming);
+                locationDistance();
                 break;
             default:
-                flooding(message, imageName, incoming);
+                flooding();
 
         }
 
@@ -57,24 +57,24 @@ public class Algorithms {
 
 
     //First
-    public void first(String message, String imageName, String ip){
+    public static void first(){
         for(Map.Entry<String, Device> entry : deviceList.entrySet()){
             String key = entry.getKey();
             Device list = entry.getValue();
 
-            if(!list.getIp().equals(ip)){
-                //send request
-                //wait for response before continuing
-                //if response contains data break out of loop
+            if(!list.getIp().equals("1")){
+                Client run = new Client();
+                run.run();
             }
         }
     }
 
     //Flooding
-    public void flooding(String message, String imageName, String ip){
+    public static void flooding(){
         for(Map.Entry<String, Device> entry : deviceList.entrySet()){
             String key = entry.getKey();
             Device list = entry.getValue();
+            String ip = list.getIp();
 
             if(!list.getIp().equals(ip)){
                 //send request via socket
@@ -84,7 +84,7 @@ public class Algorithms {
 
 
     //Location angle
-    public void locationAngleBased(String message, String imageName, String ip){
+    public static void locationAngleBased(){
         String ipKey = "";
         double value = -1;
         double angle;
@@ -114,7 +114,7 @@ public class Algorithms {
     }
 
     //Location angle
-    public void locationDistance(String message, String imageName, String ip){
+    public static void locationDistance(){
         double distance = 0;
         String ipKey = "";
         double value = -1;

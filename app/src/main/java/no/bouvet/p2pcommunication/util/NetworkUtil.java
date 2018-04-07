@@ -38,8 +38,7 @@ public class NetworkUtil {
 
   public static String getMyWifiP2pIpAddress() {
     try {
-      Enumeration<InetAddress> inetAddressEnumeration = getWifiP2pNetworkInterface()
-          .getInetAddresses();
+      Enumeration<InetAddress> inetAddressEnumeration = getWifiP2pNetworkInterface().getInetAddresses();
       while (inetAddressEnumeration.hasMoreElements()) {
         InetAddress inetAddress = inetAddressEnumeration.nextElement();
         if (isIpv4Address(inetAddress)) {

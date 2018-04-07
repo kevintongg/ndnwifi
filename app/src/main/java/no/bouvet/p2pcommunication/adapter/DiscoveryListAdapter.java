@@ -10,12 +10,17 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
 import no.bouvet.p2pcommunication.R;
 import no.bouvet.p2pcommunication.deviceList.Device;
+import no.bouvet.p2pcommunication.fragment.DiscoveryAndConnectionFragment;
 import no.bouvet.p2pcommunication.util.NetworkUtil;
 
 import static no.bouvet.p2pcommunication.P2PCommunicationActivity.deviceList;
@@ -45,6 +50,7 @@ public class DiscoveryListAdapter extends ArrayAdapter<WifiP2pDevice>  {
     if(!(deviceList.containsKey(myDevice.deviceAddress))) {
 
         deviceList.put(myDevice.deviceAddress, new Device(myDevice.deviceName, myDevice.deviceAddress));
+        readAddresses(myDevice.deviceAddress);
     }
 
     discoveryListAdapterViewHolder.deviceNameTextView.setText(myDevice.deviceName);
@@ -85,6 +91,39 @@ public class DiscoveryListAdapter extends ArrayAdapter<WifiP2pDevice>  {
         return context.getString(R.string.unavailable);
       default:
         return context.getString(R.string.unknown);
+    }
+  }
+  private void readAddresses(String mac2) {
+
+    BufferedReader bufferedReader = null;
+
+    try {
+      bufferedReader = new BufferedReader(new FileReader("/proc/net/arp"));
+
+      String line;
+      while ((line = bufferedReader.readLine()) != null) {
+        String[] splitted = line.split(" +");
+        if (splitted != null && splitted.length >= 4) {
+          String ip = splitted[0];
+          String mac = splitted[3];
+          if (mac.equals(mac2)) {
+            Log.d("MGMT", ip);
+
+          }
+        }
+      }
+
+    } catch (FileNotFoundException e) {
+      e.printStackTrace();
+
+    } catch (IOException e) {
+      e.printStackTrace();
+    } finally {
+      try {
+        bufferedReader.close();
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
     }
   }
 
