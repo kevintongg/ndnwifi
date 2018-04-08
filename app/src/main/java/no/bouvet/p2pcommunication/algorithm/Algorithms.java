@@ -62,9 +62,9 @@ public class Algorithms {
             String key = entry.getKey();
             Device list = entry.getValue();
 
-            if(!list.getIp().equals("1")){
+            if(!list.getIp().isEmpty()){
                 Client run = new Client();
-                run.run();
+                run.run(list.getIp());
             }
         }
     }

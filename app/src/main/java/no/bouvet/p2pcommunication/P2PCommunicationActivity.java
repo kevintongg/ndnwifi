@@ -418,9 +418,6 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
       case WifiP2pDevice.INVITED:
         return getString(R.string.invited);
       case WifiP2pDevice.CONNECTED:
-////        Server run = new Server();
-////        run.run();
-//        Algorithms.forwarding();
         return getString(R.string.connected);
       case WifiP2pDevice.FAILED:
         return getString(R.string.failed);
@@ -459,7 +456,7 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
         for (Map.Entry<String, Locations> entry : deviceLocations.entrySet()) {
           String key = entry.getKey();
 
-          Log.d(TAG, "Keys" + key);
+          //Log.d(TAG, "Keys" + key);
         }
 
 
@@ -576,7 +573,7 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
         value = angle;
       }
     }
-    Toast.makeText(this, "Closest to North: " + key + "\n", Toast.LENGTH_SHORT).show();
+   // Toast.makeText(this, "Closest to North: " + key + "\n", Toast.LENGTH_SHORT).show();
   }
 
   @Override

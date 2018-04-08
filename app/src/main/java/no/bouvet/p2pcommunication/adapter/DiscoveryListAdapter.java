@@ -19,8 +19,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 import no.bouvet.p2pcommunication.R;
+import no.bouvet.p2pcommunication.algorithm.Algorithms;
 import no.bouvet.p2pcommunication.deviceList.Device;
 import no.bouvet.p2pcommunication.fragment.DiscoveryAndConnectionFragment;
+import no.bouvet.p2pcommunication.multiclients.Server;
 import no.bouvet.p2pcommunication.util.NetworkUtil;
 
 import static no.bouvet.p2pcommunication.P2PCommunicationActivity.deviceList;
@@ -30,6 +32,7 @@ public class DiscoveryListAdapter extends ArrayAdapter<WifiP2pDevice>  {
 
   private Context context;
   private int layoutResourceId;
+  private String mac;
 
   public DiscoveryListAdapter(Context context, int layoutResourceId) {
     super(context, layoutResourceId);
@@ -50,7 +53,7 @@ public class DiscoveryListAdapter extends ArrayAdapter<WifiP2pDevice>  {
     if(!(deviceList.containsKey(myDevice.deviceAddress))) {
 
         deviceList.put(myDevice.deviceAddress, new Device(myDevice.deviceName, myDevice.deviceAddress));
-        readAddresses(myDevice.deviceAddress);
+        mac = myDevice.deviceAddress;
     }
 
     discoveryListAdapterViewHolder.deviceNameTextView.setText(myDevice.deviceName);
@@ -84,6 +87,8 @@ public class DiscoveryListAdapter extends ArrayAdapter<WifiP2pDevice>  {
       case WifiP2pDevice.INVITED:
         return context.getString(R.string.invited);
       case WifiP2pDevice.CONNECTED:
+          readAddresses(mac);
+
         return context.getString(R.string.connected);
       case WifiP2pDevice.FAILED:
         return context.getString(R.string.failed);
@@ -106,11 +111,15 @@ public class DiscoveryListAdapter extends ArrayAdapter<WifiP2pDevice>  {
         if (splitted != null && splitted.length >= 4) {
           String ip = splitted[0];
           String mac = splitted[3];
+
           if (mac.equals(mac2)) {
               deviceList.get(mac2).setIp(ip);
+              // Server run = new Server();
+              // run.run();
+              Algorithms.forwarding();
 
               //Test if IP is being saved
-              Log.d("MAC Set: ", deviceList.get(mac2).getMacAddress() + " || IP: " + deviceList.get(mac2).getIp());
+              //Log.d("MGMT", deviceList.get(mac2).getMacAddress() + " || IP: " + deviceList.get(mac2).getIp());
 
           }
         }
