@@ -114,8 +114,8 @@ public class DiscoveryListAdapter extends ArrayAdapter<WifiP2pDevice>  {
 
           if (mac.equals(mac2)) {
               deviceList.get(mac2).setIp(ip);
-              // Server run = new Server();
-              // run.run();
+//               Server run = new Server();
+//               run.run();
               Algorithms.forwarding();
 
               //Test if IP is being saved
