@@ -2,7 +2,12 @@ package no.bouvet.p2pcommunication.algorithm;
 
 import android.os.AsyncTask;
 import android.util.Log;
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import no.bouvet.p2pcommunication.deviceList.Device;
 import no.bouvet.p2pcommunication.locationSocket.Direction;
@@ -23,6 +28,7 @@ import static no.bouvet.p2pcommunication.locationSocket.Direction.getDistance;
 public class Algorithms {
     public static final String TAG = "Algorithms";
     public static String forwardingStrategy = "First";
+    public static  ArrayList<String> alreadyCalled = new ArrayList<>();
 
     //Use for Destination Phone
     final public static double SOURCE_LAT = 0;
@@ -34,11 +40,7 @@ public class Algorithms {
 
     public static void forwarding(){
 
-
-        switch(forwardingStrategy){
-            case "Flooding":
-                flooding();
-                break;
+        switch(forwardingStrategy) {
             case "First":
                 first();
                 break;
@@ -49,38 +51,43 @@ public class Algorithms {
                 locationDistance();
                 break;
             default:
-                flooding();
 
-        }
-
+                }
     }
 
 
     //First
     public static void first(){
-        for(Map.Entry<String, Device> entry : deviceList.entrySet()){
-            String key = entry.getKey();
+        if(deviceList.size() < alreadyCalled.size()){
+            alreadyCalled.clear();
+        }
+
+        for(Map.Entry<String, Device> entry : deviceList.entrySet()) {
             Device list = entry.getValue();
 
-            if(list.getIp() != null){
+            if (list.getIp() != null) {
                 Client run = new Client();
-                run.run(list.getIp());
+                run.run();
+                if(!(alreadyCalled.contains(list.getIp())))
+                    alreadyCalled.add(list.getIp());
             }
+
         }
+
+
     }
 
-    //Flooding
-    public static void flooding(){
-        for(Map.Entry<String, Device> entry : deviceList.entrySet()){
-            String key = entry.getKey();
-            Device list = entry.getValue();
-            String ip = list.getIp();
-
-            if(!list.getIp().equals(ip)){
-                //send request via socket
-            }
-        }
-    }
+//    //Flooding
+//    public static void flooding(){
+//        for(Map.Entry<String, Device> entry : deviceList.entrySet()){
+//            Device list = entry.getValue();
+//            String ip = list.getIp();
+//
+//            if(!list.getIp().equals(ip)){
+//                //send request via socket
+//            }
+//        }
+//    }
 
 
     //Location angle
@@ -108,7 +115,8 @@ public class Algorithms {
                 }
             }
 
-            //send request message to key (ip)
+            Client run = new Client();
+            run.run();
 
         }
     }
@@ -136,71 +144,12 @@ public class Algorithms {
                 }
             }
 
-            //send request message to key (ip)
+            Client run = new Client();
+            run.run();
 
         }
     }
 
-    //Possible Timeout/Wait
-    public class TimeoutTask extends AsyncTask<String, Integer, Long> {
-        public static final String TAG = "timeouttask";
-        private final Integer timeout = 2000;
-        private String name;
-        protected Long doInBackground(String... strings) {
-            name = strings[0];
-            try{
-                Thread.sleep(timeout);
-            }catch (InterruptedException ex){
-                ex.printStackTrace();
-            }
-            return 0L;
-        }
-
-        protected void onCancelled(){
-            Log.d(TAG, "cancelling time out");
-        }
-
-        protected void onPostExecute(Long result) {
-            Log.d(TAG, "timed out--removing " + name + " from pit");
-        }
-
-    }
-
-    public class SequentialTimeoutTask extends AsyncTask<String, Integer, Long> {
-        public static final String TAG = "sequentialtimeouttask";
-        private final Integer timeout = 2000;
-        private String name;
-        private String message;
-        private String incoming;
-        private String outgoing;
-
-        public SequentialTimeoutTask(String message, String name,
-                                     String incoming, String outgoing){
-            this.message = message;
-            this.name = name;
-            this.incoming = incoming;
-            this.outgoing = outgoing;
-        }
-
-        protected Long doInBackground(String... strings) {
-            try{
-                Thread.sleep(timeout);
-            }catch (InterruptedException ex){
-                ex.printStackTrace();
-            }
-            return 0L;
-        }
-
-        protected void onCancelled(){
-            Log.d(TAG, "cancelling sequential time out");
-        }
-
-        protected void onPostExecute(Long result) {
-            Log.d(TAG, "timed out -- trying next element ");
-            // FIXME: should use a combo of ip and interest;
-        }
-
-    }
 
 
 }

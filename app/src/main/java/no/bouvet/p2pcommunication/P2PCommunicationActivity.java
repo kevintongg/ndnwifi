@@ -469,6 +469,7 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
         }, 160, 160);
 
         int secs = 5;
+
         DelayHandler.delay(secs, new DelayHandler.DelayCallback() {
           @Override
           public void afterDelay() {

@@ -17,11 +17,15 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import no.bouvet.p2pcommunication.R;
 import no.bouvet.p2pcommunication.algorithm.Algorithms;
 import no.bouvet.p2pcommunication.deviceList.Device;
 import no.bouvet.p2pcommunication.fragment.DiscoveryAndConnectionFragment;
+import no.bouvet.p2pcommunication.locationSocket.LocationAsyncTask;
+import no.bouvet.p2pcommunication.multiclients.Client;
 import no.bouvet.p2pcommunication.multiclients.Server;
 import no.bouvet.p2pcommunication.util.NetworkUtil;
 
@@ -113,10 +117,13 @@ public class DiscoveryListAdapter extends ArrayAdapter<WifiP2pDevice>  {
           String mac = splitted[3];
 
           if (mac.equals(mac2)) {
+
+
               deviceList.get(mac2).setIp(ip);
 //               Server run = new Server();
 //               run.run();
               Algorithms.forwarding();
+
 
               //Test if IP is being saved
               //Log.d("MGMT", deviceList.get(mac2).getMacAddress() + " || IP: " + deviceList.get(mac2).getIp());
