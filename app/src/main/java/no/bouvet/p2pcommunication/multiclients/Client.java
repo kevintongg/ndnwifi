@@ -47,8 +47,8 @@ public class Client extends AppCompatActivity {
 
     String welcomeMsg = "";
 
-    public void run() {
-        MyClientTask myClientTask = new MyClientTask("192.168.49.1",8080, welcomeMsg);
+    public void run(String ip) {
+        MyClientTask myClientTask = new MyClientTask(ip, 8080, welcomeMsg);
         myClientTask.execute();
     }
 

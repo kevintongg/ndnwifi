@@ -14,6 +14,7 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -36,7 +37,6 @@ public class DiscoveryListAdapter extends ArrayAdapter<WifiP2pDevice>  {
 
   private Context context;
   private int layoutResourceId;
-  private String mac;
 
   public DiscoveryListAdapter(Context context, int layoutResourceId) {
     super(context, layoutResourceId);
@@ -57,7 +57,7 @@ public class DiscoveryListAdapter extends ArrayAdapter<WifiP2pDevice>  {
     if(!(deviceList.containsKey(myDevice.deviceAddress))) {
 
         deviceList.put(myDevice.deviceAddress, new Device(myDevice.deviceName, myDevice.deviceAddress));
-        mac = myDevice.deviceAddress;
+        Log.d("----TEST", myDevice.deviceAddress);
     }
 
     discoveryListAdapterViewHolder.deviceNameTextView.setText(myDevice.deviceName);
@@ -91,7 +91,7 @@ public class DiscoveryListAdapter extends ArrayAdapter<WifiP2pDevice>  {
       case WifiP2pDevice.INVITED:
         return context.getString(R.string.invited);
       case WifiP2pDevice.CONNECTED:
-          readAddresses(mac);
+        readAddresses();
 
         return context.getString(R.string.connected);
       case WifiP2pDevice.FAILED:
@@ -102,13 +102,12 @@ public class DiscoveryListAdapter extends ArrayAdapter<WifiP2pDevice>  {
         return context.getString(R.string.unknown);
     }
   }
-  private void readAddresses(String mac2) {
+  private void readAddresses() {
 
     BufferedReader bufferedReader = null;
 
     try {
       bufferedReader = new BufferedReader(new FileReader("/proc/net/arp"));
-
       String line;
       while ((line = bufferedReader.readLine()) != null) {
         String[] splitted = line.split(" +");
@@ -116,17 +115,18 @@ public class DiscoveryListAdapter extends ArrayAdapter<WifiP2pDevice>  {
           String ip = splitted[0];
           String mac = splitted[3];
 
-          if (mac.equals(mac2)) {
+          if (mac.matches("..:..:..:..:..:..")) {
+              Log.d("----TEST", mac + "||" + ip);
 
 
-              deviceList.get(mac2).setIp(ip);
+             // deviceList.get(mac).setIp(ip);
 //               Server run = new Server();
 //               run.run();
-              Algorithms.forwarding();
+           Algorithms.forwarding(ip);
 
 
               //Test if IP is being saved
-              //Log.d("MGMT", deviceList.get(mac2).getMacAddress() + " || IP: " + deviceList.get(mac2).getIp());
+            //  Log.d("MGMT", deviceList.get(mac).getMacAddress() + " || IP: " + deviceList.get(mac).getIp() + " || Name: " +  deviceList.get(mac).getDeviceName());
 
           }
         }

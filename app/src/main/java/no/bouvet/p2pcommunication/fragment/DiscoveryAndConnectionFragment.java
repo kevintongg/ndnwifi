@@ -232,7 +232,7 @@ public class DiscoveryAndConnectionFragment extends ListFragment implements Disc
           String ip = splitted[0];
           String mac = splitted[3];
           if (mac.matches("..:..:..:..:..:..")) {
-            Log.d("MGMT", ip);
+            Log.d("----TEST", ip + " || " + mac );
             Node thisNode = new Node(ip);
             listNote.add(thisNode);
           }

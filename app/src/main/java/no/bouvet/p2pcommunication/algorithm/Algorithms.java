@@ -38,11 +38,11 @@ public class Algorithms {
     final double DEST_LAT = 0;
     final double DEST_LONG = 0;
 
-    public static void forwarding(){
+    public static void forwarding(String ip){
 
         switch(forwardingStrategy) {
             case "First":
-                first();
+                first(ip);
                 break;
             case "Angle-Based":
                 locationAngleBased();
@@ -57,22 +57,28 @@ public class Algorithms {
 
 
     //First
-    public static void first(){
+    public static void first(String ip){
         if(deviceList.size() < alreadyCalled.size()){
             alreadyCalled.clear();
         }
 
-        for(Map.Entry<String, Device> entry : deviceList.entrySet()) {
-            Device list = entry.getValue();
+        Client run = new Client();
+        run.run(ip);
 
-            if (list.getIp() != null) {
-                Client run = new Client();
-                run.run();
-                if(!(alreadyCalled.contains(list.getIp())))
-                    alreadyCalled.add(list.getIp());
-            }
 
-        }
+//        for(Map.Entry<String, Device> entry : deviceList.entrySet()) {
+//            Device list = entry.getValue();
+//
+//            if (list.getIp() != null) {
+//                Client run = new Client();
+//                run.run(list.getIp());
+//
+//                Log.d("-----Test", list.getIp());
+//                if(!(alreadyCalled.contains(list.getIp())))
+//                    alreadyCalled.add(list.getIp());
+//            }
+//
+//        }
 
 
     }
@@ -116,7 +122,7 @@ public class Algorithms {
             }
 
             Client run = new Client();
-            run.run();
+            run.run(ipKey);
 
         }
     }
@@ -145,7 +151,7 @@ public class Algorithms {
             }
 
             Client run = new Client();
-            run.run();
+            run.run(ipKey);
 
         }
     }
