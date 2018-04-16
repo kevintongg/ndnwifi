@@ -333,8 +333,7 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
       amIHostQuestionTextView.setText(
               getString(R.string.am_i_host_question) + " " + getResources().getString(R.string.no));
       hostIpTextView.setText(
-              getString(R.string.ip_capital_letters) + ": " + wifiP2pInfo.groupOwnerAddress
-                      .getHostAddress());
+              getString(R.string.ip_capital_letters) + ": " + wifiP2pInfo.groupOwnerAddress.getHostAddress());
     } else {
       amIHostQuestionTextView.setText("");
       hostIpTextView.setText("");
@@ -440,24 +439,20 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
         double latitude = location.getLatitude();
         double longitude = location.getLongitude();
 
+
+        //FOR SOURCE & DESTINATION HARDCODE LAT AND LONG
         locationGetter.add(0, latitude);
         locationGetter.add(1, longitude);
 
-        //test data
-        deviceLocations.put("Closest", data2);
-        data2.update("Closest", 42.042246, -111.355112);
-        data2.update("Closest", 42.042246, -111.355621);
-        deviceLocations.put("Closest", data2);
+        //DO NOT USE DATA2 IN FINAL, JUST DATA
+//        deviceLocations.put("Closest", data2);
+//        data2.update("Closest", 42.042246, -111.355112);
+//        data2.update("Closest", 42.042246, -111.355621);
+//        deviceLocations.put("Closest", data2);
 
         data.update(myDeviceName, latitude, longitude);
 
         deviceLocations.put(myDeviceName, data);
-
-        for (Map.Entry<String, Locations> entry : deviceLocations.entrySet()) {
-          String key = entry.getKey();
-
-          //Log.d(TAG, "Keys" + key);
-        }
 
 
         Timer t = new Timer();
@@ -468,14 +463,14 @@ public class P2PCommunicationActivity extends FragmentActivity implements WifiP2
           }
         }, 160, 160);
 
-        int secs = 5;
-
-        DelayHandler.delay(secs, new DelayHandler.DelayCallback() {
-          @Override
-          public void afterDelay() {
-            locationBasedSelect();
-          }
-        });
+//        int secs = 5;
+//
+//        DelayHandler.delay(secs, new DelayHandler.DelayCallback() {
+//          @Override
+//          public void afterDelay() {
+//            locationBasedSelect();
+//          }
+//        });
         updateUserStatus(latitude, longitude);
       }
 

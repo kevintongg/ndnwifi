@@ -27,23 +27,23 @@ import static no.bouvet.p2pcommunication.locationSocket.Direction.getDistance;
 //TODO: Work in Progress, implement First-hit, flooding, location
 public class Algorithms {
     public static final String TAG = "Algorithms";
-    public static String forwardingStrategy = "First";
-    public static  ArrayList<String> alreadyCalled = new ArrayList<>();
+    public static String forwardingStrategy = "Angle-Based";
+//    public static  ArrayList<String> alreadyCalled = new ArrayList<>();
 
     //Use for Destination Phone
     final public static double SOURCE_LAT = 0;
     final public static double SOURCE_LONG = 0;
 
     //Use for Source Phone
-    final double DEST_LAT = 0;
-    final double DEST_LONG = 0;
+    final static double DEST_LAT = 0;
+    final static double DEST_LONG = 0;
 
-    public static void forwarding(String ip){
+    public static void forwarding(){
 
         switch(forwardingStrategy) {
-            case "First":
-                first(ip);
-                break;
+//            case "First":
+//                first(ip);
+//                break;
             case "Angle-Based":
                 locationAngleBased();
                 break;
@@ -57,13 +57,13 @@ public class Algorithms {
 
 
     //First
-    public static void first(String ip){
-        if(deviceList.size() < alreadyCalled.size()){
-            alreadyCalled.clear();
-        }
-
-        Client run = new Client();
-        run.run(ip);
+//    public static void first(String ip){
+//        if(deviceList.size() < alreadyCalled.size()){
+//            alreadyCalled.clear();
+//        }
+//
+//        Client run = new Client();
+//        run.run(ip);
 
 
 //        for(Map.Entry<String, Device> entry : deviceList.entrySet()) {
@@ -80,8 +80,8 @@ public class Algorithms {
 //
 //        }
 
-
-    }
+//
+//    }
 
 //    //Flooding
 //    public static void flooding(){
@@ -102,6 +102,7 @@ public class Algorithms {
         double value = -1;
         double angle;
 
+        //TODO: Use this for Destination
         if(deviceLocations != null){
 
             for (java.util.Map.Entry<String, Locations> entry : deviceLocations.entrySet()) {
@@ -110,7 +111,7 @@ public class Algorithms {
 
                 //replace 0 with source destination
                 angle = Direction.angleBetweenThreePoints(v.getPreviousLatitude(), v.getPreviousLongitude(),
-                        v.getCurrentLatitude(), v.getCurrentLongitude(), 0, 0);
+                        v.getCurrentLatitude(), v.getCurrentLongitude(), SOURCE_LAT, SOURCE_LONG);
 
                 if (value == -1 && value != NaN) {
                     ipKey = k;
@@ -125,6 +126,33 @@ public class Algorithms {
             run.run(ipKey);
 
         }
+
+
+
+        //TODO: Use this for Source
+//        if(deviceLocations != null){
+//
+//            for (java.util.Map.Entry<String, Locations> entry : deviceLocations.entrySet()) {
+//                String k = entry.getKey();
+//                Locations v = entry.getValue();
+//
+//                //replace 0 with source destination
+//                angle = Direction.angleBetweenThreePoints(v.getPreviousLatitude(), v.getPreviousLongitude(),
+//                        v.getCurrentLatitude(), v.getCurrentLongitude(), DEST_LAT, DEST_LONG);
+//
+//                if (value == -1 && value != NaN) {
+//                    ipKey = k;
+//                    value = angle;
+//                } else if (value > angle && value != NaN) {
+//                    ipKey = k;
+//                    value = angle;
+//                }
+//            }
+//
+//            Client run = new Client();
+//            run.run(ipKey);
+//
+//        }
     }
 
     //Location angle
@@ -133,6 +161,8 @@ public class Algorithms {
         String ipKey = "";
         double value = -1;
 
+
+        //TODO: Use this for Destination
         if(deviceLocations != null){
 
             for (java.util.Map.Entry<String, Locations> entry : deviceLocations.entrySet()) {
@@ -154,6 +184,29 @@ public class Algorithms {
             run.run(ipKey);
 
         }
+
+        //TODO: Use this for Source
+//        if(deviceLocations != null){
+//
+//            for (java.util.Map.Entry<String, Locations> entry : deviceLocations.entrySet()) {
+//                String k = entry.getKey();
+//                Locations v = entry.getValue();
+//
+//                distance = getDistance(v.getCurrentLatitude(), v.getCurrentLongitude(), DEST_LAT, DEST_LONG);
+//
+//                if (value == -1 && value != NaN) {
+//                    ipKey = k;
+//                    value = distance;
+//                } else if (value > distance && value != NaN) {
+//                    ipKey = k;
+//                    value = distance;
+//                }
+//            }
+//
+//            Client run = new Client();
+//            run.run(ipKey);
+//
+//        }
     }
 
 
