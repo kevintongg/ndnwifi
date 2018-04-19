@@ -1,0 +1,95 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:tools="http://schemas.android.com/tools"
+  android:layout_width="match_parent"
+  android:layout_height="match_parent"
+  android:paddingTop="@dimen/activity_vertical_margin"
+  android:paddingBottom="@dimen/activity_vertical_margin"
+  android:paddingLeft="@dimen/activity_horizontal_margin"
+  android:paddingRight="@dimen/activity_horizontal_margin"
+  android:orientation="vertical"
+  tools:context=".Client">
+
+
+  <LinearLayout
+    android:id="@+id/loginpanel"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:visibility="visible">
+
+    <TextView
+      android:id="@+id/infoip"
+      android:textStyle="italic"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:visibility="gone"/>
+
+    <EditText
+      android:id="@+id/address"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:hint="ip address"
+      android:visibility="gone"/>
+
+    <EditText
+      android:id="@+id/username"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:hint="User name"/>
+
+    <Button
+      android:id="@+id/connect"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:text="Connect..."/>
+  </LinearLayout>
+
+  <LinearLayout
+    android:id="@+id/chatpanel"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:visibility="gone">
+
+    <Button
+      android:id="@+id/send_file"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:text="Send File"/>
+
+    <Button
+      android:id="@+id/get_file"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:text="Get File"/>
+
+    <EditText
+      android:id="@+id/say"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:hint="Say something"/>
+
+    <Button
+      android:id="@+id/send"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:text="Send"/>
+
+    <Button
+      android:id="@+id/disconnect"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:text="Disconnect"/>
+
+    <ScrollView
+      android:layout_width="match_parent"
+      android:layout_height="match_parent">
+
+      <TextView
+        android:id="@+id/chatmsg"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+    </ScrollView>
+  </LinearLayout>
+
+</LinearLayout>
