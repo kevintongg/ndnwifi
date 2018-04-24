@@ -43,41 +43,35 @@ public class Receive {
 
             try {
                 socket = new Socket(dstAddress, dstPort);
-
-                for(int i=1;i < 9;i++){
+                for(int i=1;i < 51;i++){
                 File file = new File(Environment.getExternalStorageDirectory(), i+".jpg");
                 Log.d("Receive--------", String.valueOf(i));
                 ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
-                    long start = System.currentTimeMillis();
-                    byte[] bytes;
+                long start = System.currentTimeMillis();
+                byte[] bytes;
                 FileOutputStream fos = null;
                 try {
                     bytes = (byte[]) ois.readObject();
                     fos = new FileOutputStream(file);
                     fos.write(bytes);
                     long cost = System.currentTimeMillis() - start;
-
-//                    if (cost > 0 && System.currentTimeMillis() % 10 == 0) {
-                        result.push(" speed: " +  cost + " /ms");
                         Log.d(TAG," speed: " +  cost + " /ms");
-
-//                    }
                 } catch (ClassNotFoundException e) {
-                    // TODO Auto-generated catch block
                     e.printStackTrace();
                 } finally {
                     if (fos != null) {
-//                        fos.close();
+                       fos.close();
                     }
-
                 }
-
                     try {
-                        // thread to sleep for 3000 milliseconds
                         Thread.sleep(3000);
                     } catch (Exception e) {
-
                     }
+                    
+                    
+                    
+                    
+                    
 
 //                socket.close();
 
